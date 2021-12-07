@@ -699,6 +699,7 @@ MoreWorldOptionsScreen(n)
 InputSeed(thePID)
 {
   SetKeyDelay, 1
+  Sleep, 5
    if WinActive("ahk_pid" thePID)
    {
       SendInput, %SEED%
@@ -707,6 +708,7 @@ InputSeed(thePID)
    {
       ControlSend, ahk_parent, {Blind}%SEED%, ahk_pid %thePID%
    }
+   Sleep, 5
    SetKeyDelay, 0
 }
 
