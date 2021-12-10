@@ -706,7 +706,7 @@ InputSeed(thePID)
    }
    else
    {
-      ControlSend, ahk_parent, {Blind}%SEED%, ahk_pid %thePID%
+      ControlSend, ahk_parent, %SEED%, ahk_pid %thePID%
    }
    Sleep, 5
    SetKeyDelay, 0
