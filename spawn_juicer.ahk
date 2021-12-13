@@ -46,6 +46,9 @@ global restartDelay := 200 ; increase if saying missing instanceNumber in .minec
 global maxLoops := 20 ; increase if macro regularly locks
 global screenDelay := 200 ; normal delay of each world creation screen, increase if random seeds are being created1, decrease for faster resets
 global oldWorldsFolder := "C:\Users\prana\OneDrive\Desktop\Minecraft\oldWorlds\" ; Old Worlds folder, make it whatever you want
+global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
+global f3showDelay = 500 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
+global muteResets := True ; mute resetting sounds
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -168,6 +171,7 @@ HandlePlayerState()
 	if (counter > 0)
 	{
       resetStates[bestSpawn] := 0 ; running
+      Unmute(bestSpawn)
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
       playerState := 1 ; running
@@ -195,6 +199,7 @@ HandleResetState(pid, idx) {
   }
   else if (resetStates[idx] == 4) ; on title screen
   {
+    Mute(idx)
     EnterSingleplayer(idx)
   }
   else if (resetStates[idx] == 5) ; on world list screen
@@ -313,12 +318,59 @@ RunHide(Command)
   DllCall("AttachConsole", "uint", cPid)
 
   Shell := ComObjCreate("WScript.Shell")
-  Exec := Shell.Exec(Command)
+  try
+  {
+    Exec := Shell.Exec(Command)
+  }
+  catch e
+  {
+    MsgBox, Error when muting or unmuting. You probably don't have the SoundVolumeView.exe in the same folder as this script. Either set muteResets to False or put that exe file in the same folder as this script.
+    UnsuspendAll()
+    ExitApp
+  }
   Result := Exec.StdOut.ReadAll()
 
   DllCall("FreeConsole")
   Process, Close, %cPid%
 Return Result
+}
+
+Mute(n)
+{
+  if (muteResets == False)
+    return
+  thePID := PIDs[n]
+  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Mute ""{1}"""
+  command := Format(preString, thePID)
+  ;MsgBox, %command%
+  rawOut := RunHide(command)
+}
+
+Unmute(n)
+{
+  if (muteResets == False)
+    return
+  thePID := PIDs[n]
+  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Unmute ""{1}"""
+  command := Format(preString, thePID)
+  ;MsgBox, %command%
+  rawOut := RunHide(command)
+}
+
+MuteAll()
+{
+  for n, thePID in PIDs
+  {
+    Mute(n)
+  }
+}
+
+UnmuteAll()
+{
+  for n, thePID in PIDs
+  {
+   Unmute(n)
+  }
 }
 
 GetSavesDir(pid)
@@ -445,6 +497,21 @@ SwitchInstance(idx)
   Y := H / 2
   MouseMove, X, Y, 0
   Send, {LButton} ; Make sure the window is activated
+  ShowF3()
+}
+
+ShowF3()
+{
+   if (f3showDuration < 0)
+   {
+      return
+   }
+   Sleep, f3showDelay
+   ControlSend, ahk_parent, {Esc}, ahk_exe javaw.exe
+   ControlSend, ahk_parent, {F3}, ahk_exe javaw.exe
+   Sleep, %f3showDuration%
+   ControlSend, ahk_parent, {F3}, ahk_exe javaw.exe
+   ControlSend, ahk_parent, {Esc}, ahk_exe javaw.exe
 }
 
 MoveWorlds(idx)
@@ -937,6 +1004,7 @@ AddToBlacklist()
     return
 
     F5:: ; Reload if macro locks up
+      UnmuteAll()
       UnsuspendAll()
       Reload
    return 
@@ -946,6 +1014,7 @@ AddToBlacklist()
 	return
     
    ^End:: ; Safely close the script
+      UnmuteAll()
       UnsuspendAll()
       ExitApp
    return
