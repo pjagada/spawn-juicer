@@ -39,19 +39,19 @@ global fullscreen := False ; all resets will be windowed, this will automaticall
 global playSound := True ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
 global countAttempts := True
-global beforeFreezeDelay := 200 ; increase if doesnt join world
-global fullScreenDelay := 270 ; increse if fullscreening issues
+global beforeFreezeDelay := 2000 ; increase if doesnt join world
+global fullScreenDelay := 400 ; increse if fullscreening issues
 global obsDelay := 100 ; increase if not changing scenes in obs
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
-global screenDelay := 100 ; normal delay of each world creation screen, increase if random seeds are being created1, decrease for faster resets
+global screenDelay := 200 ; normal delay of each world creation screen, increase if random seeds are being created1, decrease for faster resets
 global oldWorldsFolder := "C:\Users\prana\OneDrive\Desktop\Minecraft\oldWorlds\" ; Old Worlds folder, make it whatever you want
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
 global centerPointX := 162.7 ; this is the x coordinate of that certain point (by default it's the x coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global centerPointZ := 194.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
-global radius := 13 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global radius := 20 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global difficulty := "Normal" ; Set difficulty here. Options: "Peaceful" "Easy" "Normal" "Hard" "Hardcore"
 global SEED := "-3294725893620991126" ; Default seed is the current Any% SSG 1.16+ seed, you can change it to whatever seed you want.
@@ -440,6 +440,10 @@ SwitchInstance(idx)
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
   }
+  WinGetPos, deez, nuts, W, H, Minecraft
+  X := W / 2
+  Y := H / 2
+  MouseMove, X, Y, 0
   Send, {LButton} ; Make sure the window is activated
 }
 
@@ -496,6 +500,15 @@ Perch()
    Send, /
    Sleep, 70
    SendInput, data merge entity @e[type=ender_dragon,limit=1] {{}DragonPhase:2{}}
+   Send, {enter}
+}
+
+GiveSword()
+{
+   OpenToLAN()
+   Send, /
+   Sleep, 70
+   SendInput, give @s minecraft:netherite_sword{{}Enchantments:[{{}id:"minecraft:sharpness",lvl:32727{}}]{}}
    Send, {enter}
 }
 
@@ -706,7 +719,7 @@ InputSeed(thePID)
    }
    else
    {
-      ControlSend, ahk_parent, %SEED%, ahk_pid %thePID%
+      ControlSend, ahk_parent, {Blind}%SEED%, ahk_pid %thePID%
    }
    Sleep, 5
    SetKeyDelay, 0
@@ -936,4 +949,8 @@ AddToBlacklist()
       UnsuspendAll()
       ExitApp
    return
+   
+  Delete:: ; kill villager
+    GiveSword()
+  return
 }
