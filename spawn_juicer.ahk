@@ -170,6 +170,9 @@ HandlePlayerState()
 	}
 	if (counter > 0)
 	{
+      writeString := readableTime() . ": player given spawn of distance " . minDist
+      OutputDebug, [macro] %writeString%
+      FileAppend, %writeString%, macro_logs.txt
       resetStates[bestSpawn] := 0 ; running
       Unmute(bestSpawn)
       SwitchInstance(bestSpawn)
@@ -846,62 +849,108 @@ GiveAngle(n)
    {
       xDiff := xCoords[n] - centerPointX
       currentX := xCoords[n]
-      OutputDebug, [macro] current x coords %currentX% minus destination X %centerPointX% equals %xDiff%
+      ;OutputDebug, [macro] current x coords %currentX% minus destination X %centerPointX% equals %xDiff%
       zDiff := centerPointZ - zCoords[n]
       currentZ := zCoords[n]
-      OutputDebug, [macro] destination Z %centerPointZ% minus current z coords %currentZ% equals %zDiff%
+      ;OutputDebug, [macro] destination Z %centerPointZ% minus current z coords %currentZ% equals %zDiff%
       angle := ATan(xDiff / zDiff) * 180 / 3.14159265358979
-      OutputDebug, [macro] raw angle is %angle%
+     ; OutputDebug, [macro] raw angle is %angle%
       if (zDiff < 0)
       {
          angle := angle - 180
-         OutputDebug, [macro] destination is north of spawn so subtracting 180 from angle for new angle of %angle%
+         ;OutputDebug, [macro] destination is north of spawn so subtracting 180 from angle for new angle of %angle%
       }
       if (zDiff = 0)
       {
-         OutputDebug, [macro] z difference is 0 so it's a 90 degree
+         ;OutputDebug, [macro] z difference is 0 so it's a 90 degree
          if (xDiff < 0)
          {
-            OutputDebug, [macro] x difference is negative so angle is -90 degrees
+           ; OutputDebug, [macro] x difference is negative so angle is -90 degrees
             angle := -90.0
          }
          else if (xDiff > 0)
          {
-            OutputDebug, [macro] x difference is positive so angle is 90 degrees
+            ;OutputDebug, [macro] x difference is positive so angle is 90 degrees
             angle := 90.0
          }
       }
       angleList := StrSplit(angle, ".")
       intAngle := angleList[1]
-      OutputDebug, integer angle is %intAngle%
+     ; OutputDebug, integer angle is %intAngle%
       ComObjCreate("SAPI.SpVoice").Speak(intAngle)
    }
 }
 
+readableTime()
+{
+   theTime := A_Now
+   year := theTime // 10000000000
+   month := mod(theTime, 10000000000)
+   month := month // 100000000
+   day := mod(theTime, 100000000)
+   day := day // 1000000
+   hour := mod(theTime, 1000000)
+   hour := hour // 10000
+   minute := mod(theTime, 10000)
+   minute := minute // 100
+   second := mod(theTime, 100)
+   if (second < 10)
+      second := "0" . second
+   if (minute < 10)
+      minute := "0" . minute
+   if (hour < 10)
+      hour := "0" . hour
+   if (day < 10)
+      day := "0" . day
+   if (month < 10)
+      month := "0" . month
+   timeString := month . "/" . day . "/" . year . " " . hour . ":" . minute . ":" second
+   return (timeString)
+}
+
 GoodSpawn(n)
 {
+  timeString := readableTime()
    xCoord := xCoords[n]
    zCoord := zCoords[n]
-   OutputDebug, [macro] spawn is %xCoord%, %zCoord%
+   writeString := timeString . ": Spawn: (" . xCoord . ", " . zCoord . "); Distance: "
+   ;OutputDebug, [macro] spawn is %xCoord%, %zCoord%
    xDisplacement := xCoord - centerPointX
    zDisplacement := zCoord - centerPointZ
    distance := Sqrt((xDisplacement * xDisplacement) + (zDisplacement * zDisplacement))
-   OutputDebug, [macro] distance of %distance%
+   ;OutputDebug, [macro] distance of %distance%
    distances[n] := distance
+   writeString := writeString . distance . "; Decision: "
    if (inList(xCoord, zCoord, "whitelist.txt"))
    {
-      OutputDebug, [macro] in whitelist
+      ;OutputDebug, [macro] in whitelist
+      writeString := writeString . "GOOD spawn (in whitelist) `n"
+      FileAppend, %writeString%, macro_logs.txt
+      OutputDebug, [macro] %writeString%
       return True
    }
    if (inList(xCoord, zCoord, "blacklist.txt"))
    {
-      OutputDebug, [macro] in blacklist
+      ;OutputDebug, [macro] in blacklist
+      writeString := writeString . "BAD spawn (in blacklist) `n"
+      FileAppend, %writeString%, macro_logs.txt
+      OutputDebug, [macro] %writeString%
       return False
    }
    if (distance <= radius)
+  {
+    writeString := writeString . "GOOD spawn (distance less than radius) `n"
+      FileAppend, %writeString%, macro_logs.txt
+      OutputDebug, [macro] %writeString%
       return True
+    }
    else
+  {
+    writeString := writeString . "BAD spawn (distance more than radius) `n"
+      FileAppend, %writeString%, macro_logs.txt
+      OutputDebug, [macro] %writeString%
       return False
+    }
 }
 
 inList(xCoord, zCoord, fileName)
