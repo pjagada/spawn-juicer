@@ -217,20 +217,12 @@ HandleResetState(pid, idx) {
   {
     MoreWorldOptionsScreen(idx)
   }
-  else if (resetStates[idx] == 8) { ; Move worlds
-    MoveWorlds(idx)
+  else if (resetStates[idx] == 8) ; track flint
+  {
+    TrackFlint(idx)
   }
-  else if (resetStates[idx] == 9) { ; count attempts
-    if (countAttempts)
-    {
-      FileRead, WorldNumber, SSG_1_16.txt
-      if (ErrorLevel)
-        WorldNumber = 0
-      else
-        FileDelete, SSG_1_16.txt
-      WorldNumber += 1
-      FileAppend, %WorldNumber%, SSG_1_16.txt
-    }
+  else if (resetStates[idx] == 9) { ; Move worlds
+    MoveWorlds(idx)
   }
   else if (resetStates[idx] == 10) { ; checking if loaded in
     WinGetTitle, title, ahk_pid %pid%
@@ -517,6 +509,132 @@ ShowF3()
    ControlSend, ahk_parent, {Esc}, ahk_exe javaw.exe
 }
 
+TrackFlint(n)
+{
+  mcDirectory := SavesDirectories[n]
+  lastWorld := getMostRecentFile(mcDirectory)
+  pathArray := StrSplit(lastWorld, "\")
+  justWorld := pathArray[pathArray.MaxIndex()]
+  ;OutputDebug, [macro] world name is %justWorld%
+  if ((!(InStr(justWorld, "New World") || InStr(justWorld, "Speedrun #"))) or (InStr(justWorld, "_")))
+  {
+    OutputDebug, [macro] world name is %justWorld% so not tracking flint for that world
+    return
+  }
+   headers := "Time that run ended, Flint obtained, Gravel mined"
+   if (!FileExist("SSGstats.csv"))
+   {
+      FileAppend, %headers%, SSGstats.csv
+   }
+   numbersArray := gravelDrops(lastWorld)
+   flintDropped := numbersArray[1]
+   gravelMined := numbersArray[2]
+   theTime := readableTime()
+   numbers := theTime . "," . flintDropped . "," . gravelMined
+   debugOutput := theTime . ": flint dropped: " . flintDropped . ", gravel mined: " . gravelMined
+   OutputDebug, [macro] %debugOutput%
+   FileAppend, `n, SSGstats.csv
+   FileAppend, %numbers%, SSGstats.csv
+}
+
+gravelDrops(lastWorld)
+{
+   currentWorld := lastWorld
+   statsFolder := currentWorld . "\stats"
+   Loop, Files, %statsFolder%\*.*, F
+   {
+      statsFile := A_LoopFileLongPath
+   }
+   FileReadLine, fileText, %statsFile%, 1
+   
+   minedLocation := InStr(fileText, "minecraft:mined")
+   if (minedLocation)
+   {
+      gravelLocation := InStr(fileText, "minecraft:gravel", , minedLocation)
+      if (gravelLocation)
+      {
+         postMined := SubStr(fileText, gravelLocation)
+         gravelArray1 := StrSplit(postMined, ":")
+         gravelSubString := gravelArray1[3]
+         gravelArray2 := StrSplit(gravelSubString, "}")
+         gravelSubString2 := gravelArray2[1]
+         gravelArray3 := StrSplit(gravelSubString2, ",")
+         gravelMined := gravelArray3[1]
+      }
+      else
+         gravelMined := 0
+   }
+   else
+      gravelMined := 0
+   
+   pickedupLocation := Instr(fileText, "minecraft:picked_up")
+   if (pickedupLocation)
+   {
+      flintLocation := InStr(fileText, "minecraft:flint", , pickedupLocation)
+      if (flintLocation)
+      {
+         postPickedup := SubStr(fileText, flintLocation)
+         flintArray1 := StrSplit(postPickedup, ":")
+         flintSubString := flintArray1[3]
+         flintArray2 := StrSplit(flintSubString, "}")
+         flintSubString2 := flintArray2[1]
+         flintArray3 := StrSplit(flintSubString2, ",")
+         flintCollected := flintArray3[1]
+      }
+      else
+         flintCollected := 0
+   }
+   else
+      flintCollected := 0
+   
+   return ([flintCollected, gravelMined])
+}
+
+UpdateStats()
+{
+   if (FileExist("SSGstats.csv"))
+   {
+      FileDelete, SSGstats.txt
+      headerRead := false
+      totalFlint := 0
+      totalGravel := 0
+      totalAttempts := 0
+      todayFlint := 0
+      todayGravel := 0
+      todayAttempts := 0
+      Loop, read, SSGstats.csv
+      {
+         if (headerRead)
+         {
+            theArray := StrSplit(A_LoopReadLine, ",")
+            totalFlint += theArray[2]
+            totalGravel += theArray[3]
+            totalAttempts += 1
+            currentDate := A_Now // 1000000
+            readTime := theArray[1]
+            dateTimeArray := StrSplit(readTime, " ")
+            rowDate := dateTimeArray[1]
+            dateArray := StrSplit(rowDate, "/")
+            theMonth := dateArray[1]
+            theDay := dateArray[2]
+            theYear := dateArray[3]
+            readDate := theYear . theMonth . theDay
+            if (readDate = currentDate)
+            {
+               todayFlint += theArray[2]
+               todayGravel += theArray[3]
+               todayAttempts += 1
+            }
+         }
+         headerRead := true
+      }
+      flintRate := 100 * totalFlint / totalGravel
+      dailyFlintRate := 100 * todayFlint / todayGravel
+      theString := totalAttempts . " attempts tracked" . "`n" . totalFlint . " flint drops out of " . totalGravel . " gravel mined for a rate of " flintRate . " percent" . "`n`n" . todayAttempts . " attempts tracked today" . "`n" . todayFlint . " flint drops out of " . todayGravel . " gravel mined for a rate of " dailyFlintRate . " percent"
+      FileAppend, %theString%, SSGstats.txt
+   }
+}
+
 MoveWorlds(idx)
 {
   dir := SavesDirectories[idx] . "saves\"
@@ -524,6 +642,7 @@ MoveWorlds(idx)
   {
     If (InStr(A_LoopFileName, "New World") || InStr(A_LoopFileName, "Speedrun #")) {
       tmp := A_NowUTC
+      ;MsgBox, %A_LoopFileName%
       FileMoveDir, %dir%%A_LoopFileName%, %dir%%A_LoopFileName%%tmp%Instance %idx%, R
       FileMoveDir, %dir%%A_LoopFileName%%tmp%Instance %idx%, %oldWorldsFolder%%A_LoopFileName%%tmp%Instance %idx%
     }
@@ -1070,5 +1189,9 @@ AddToBlacklist()
    
   Delete:: ; kill villager
     GiveSword()
+  return
+  
+  ^S:: ; update the stats text file (make sure it's closed in notepad before running this)
+    UpdateStats()
   return
 }
