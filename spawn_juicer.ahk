@@ -174,7 +174,6 @@ HandlePlayerState()
       OutputDebug, [macro] %writeString%
       FileAppend, %writeString%, macro_logs.txt
       resetStates[bestSpawn] := 0 ; running
-      Unmute(bestSpawn)
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
       playerState := 1 ; running
@@ -478,6 +477,7 @@ SwitchInstance(idx)
   thePID := PIDs[idx]
   if (instanceFreezing)
     ResumeInstance(thePID)
+  Unmute(idx)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   send {Numpad%idx% down}
@@ -487,11 +487,13 @@ SwitchInstance(idx)
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
   }
+  /*
   WinGetPos, deez, nuts, W, H, Minecraft
   X := W / 2
   Y := H / 2
   MouseMove, X, Y, 0
   Send, {LButton} ; Make sure the window is activated
+  */
   ShowF3()
 }
 
@@ -515,7 +517,6 @@ TrackFlint(n)
   lastWorld := getMostRecentFile(mcDirectory)
   pathArray := StrSplit(lastWorld, "\")
   justWorld := pathArray[pathArray.MaxIndex()]
-  ;OutputDebug, [macro] world name is %justWorld%
   if ((!(InStr(justWorld, "New World") || InStr(justWorld, "Speedrun #"))) or (InStr(justWorld, "_")))
   {
     OutputDebug, [macro] world name is %justWorld% so not tracking flint for that world
@@ -531,10 +532,16 @@ TrackFlint(n)
    gravelMined := numbersArray[2]
    theTime := readableTime()
    numbers := theTime . "," . flintDropped . "," . gravelMined
-   debugOutput := theTime . ": flint dropped: " . flintDropped . ", gravel mined: " . gravelMined
+   debugOutput := theTime . ": Instance " . n . ": flint dropped: " . flintDropped . ", gravel mined: " . gravelMined
    OutputDebug, [macro] %debugOutput%
    FileAppend, `n, SSGstats.csv
    FileAppend, %numbers%, SSGstats.csv
+}
+
+DebugHead(n)
+{
+  writeString := "[macro] " . readableTime() . ": Instance " . n . ": "
+  return writeString
 }
 
 gravelDrops(lastWorld)
@@ -924,13 +931,10 @@ Test()
 getVersion()
 {
   savesDirectory := SavesDirectories[1]
-  ;OutputDebug, [macro] %savesDirectory%
    optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
-   ;OutputDebug, [macro] options file is %optionsFile%
    FileReadLine, versionLine, %optionsFile%, 1
    arr := StrSplit(versionLine, ":")
    dataVersion := arr[2]
-   ;OutputDebug, [macro] data version is %dataVersion%
    if (dataVersion > 2600)
       return (17)
    else
@@ -940,7 +944,6 @@ getVersion()
 PauseOnLostFocus(savesDirectory) ;used on script startup
 {
    optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
-   ;OutputDebug, [macro] %optionsFile% version is %version%
    if (version = 16)
       FileReadLine, optionLine, %optionsFile%, 45
    else
@@ -968,34 +971,26 @@ GiveAngle(n)
    {
       xDiff := xCoords[n] - centerPointX
       currentX := xCoords[n]
-      ;OutputDebug, [macro] current x coords %currentX% minus destination X %centerPointX% equals %xDiff%
       zDiff := centerPointZ - zCoords[n]
       currentZ := zCoords[n]
-      ;OutputDebug, [macro] destination Z %centerPointZ% minus current z coords %currentZ% equals %zDiff%
       angle := ATan(xDiff / zDiff) * 180 / 3.14159265358979
-     ; OutputDebug, [macro] raw angle is %angle%
       if (zDiff < 0)
       {
          angle := angle - 180
-         ;OutputDebug, [macro] destination is north of spawn so subtracting 180 from angle for new angle of %angle%
       }
       if (zDiff = 0)
       {
-         ;OutputDebug, [macro] z difference is 0 so it's a 90 degree
          if (xDiff < 0)
          {
-           ; OutputDebug, [macro] x difference is negative so angle is -90 degrees
             angle := -90.0
          }
          else if (xDiff > 0)
          {
-            ;OutputDebug, [macro] x difference is positive so angle is 90 degrees
             angle := 90.0
          }
       }
       angleList := StrSplit(angle, ".")
       intAngle := angleList[1]
-     ; OutputDebug, integer angle is %intAngle%
       ComObjCreate("SAPI.SpVoice").Speak(intAngle)
    }
 }
@@ -1032,12 +1027,10 @@ GoodSpawn(n)
   timeString := readableTime()
    xCoord := xCoords[n]
    zCoord := zCoords[n]
-   writeString := timeString . ": Spawn: (" . xCoord . ", " . zCoord . "); Distance: "
-   ;OutputDebug, [macro] spawn is %xCoord%, %zCoord%
+   writeString := timeString . ": Instance " . n . ": Spawn: (" . xCoord . ", " . zCoord . "); Distance: "
    xDisplacement := xCoord - centerPointX
    zDisplacement := zCoord - centerPointZ
    distance := Sqrt((xDisplacement * xDisplacement) + (zDisplacement * zDisplacement))
-   ;OutputDebug, [macro] distance of %distance%
    distances[n] := distance
    writeString := writeString . distance . "; Decision: "
    if (inList(xCoord, zCoord, "whitelist.txt"))
@@ -1097,30 +1090,22 @@ inList(xCoord, zCoord, fileName)
 GetSpawn(i)
 {
   logFile := StrReplace(savesDirectories[i], "saves", "logs\latest.log") . "logs\latest.log"
-  numLines := 0
   Loop, Read, %logFile%
   {
-    numLines += 1
-  }
-  Loop, Read, %logFile%
-  {
-    if ((numLines - A_Index) <= 15)
-	{
-      if (InStr(A_LoopReadLine, "logged in with entity id"))
-      {
-		spawnLine := A_LoopReadLine
-		array1 := StrSplit(spawnLine, " at (")
-		xyz := array1[2]
-		array2 := StrSplit(xyz, ", ")
-		xCoord := array2[1]
-		zCooord := array2[3]
-		array3 := StrSplit(zCooord, ")")
-		zCoord := array3[1]
-		xCoords[i] := xCoord
-		zCoords[i] := zCoord
-      }
+    if (InStr(A_LoopReadLine, "logged in with entity id"))
+    {
+      spawnLine := A_LoopReadLine
     }
   }
+  array1 := StrSplit(spawnLine, " at (")
+  xyz := array1[2]
+  array2 := StrSplit(xyz, ", ")
+  xCoord := array2[1]
+  zCooord := array2[3]
+  array3 := StrSplit(zCooord, ")")
+  zCoord := array3[1]
+  xCoords[i] := xCoord
+  zCoords[i] := zCoord
 }
 
 AlertUser(n)
@@ -1191,7 +1176,7 @@ AddToBlacklist()
     GiveSword()
   return
   
-  ^S:: ; update the stats text file (make sure it's closed in notepad before running this)
+  ^H:: ; update the stats text file (make sure it's closed in notepad before running this)
     UpdateStats()
   return
 }
