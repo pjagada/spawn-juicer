@@ -6,7 +6,7 @@ First release expected by December 19, 2021.
 
 ## Features
 
-## Autoresetter-specific features
+### Autoresetter-specific features
 
 ### Planned features
 
