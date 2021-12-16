@@ -465,6 +465,7 @@ SwitchInstance(idx)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   send {Numpad%idx% down}
+  ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
   sleep, %obsDelay%
   send {Numpad%idx% up}
   if (fullscreen) {
