@@ -1,28 +1,7 @@
 ; Multi instance AHK resetting script for set seed
 ; Original author Specnr, modified for set seed by Peej
 
-; Follow setup video (mainly for OBS setup) https://youtu.be/0gaG-P2XxrE
-; Run the setup script https://gist.github.com/Specnr/b13dae781f1b70bb6592027205870c7e
-; Follow extra instructions https://gist.github.com/Specnr/c851a92a258dd1fdbe3eee588f3f14d8#gistcomment-3810003
-
-; When you run this, make sure all instances are in a world and paused or on the title screen. If they are on a loading screen, this will probably break.
-
-; Autoresetter use:
-;   1) By default, the autoresetter will reset all spawns outside of the set radius of the set focal point and will alert you of any spawns inside or equal to the set radius of the set focal point.
-;   2) If there are only a few spawns that you're going to reset, create a file (in same folder as this script) called blacklist.txt and set the autoresetter radius to something very large like 1000.
-;   3) If there are only a few spawns that you're going to play, crate a file (in same folder as this script) called whitelist.txt and set the autoresetter radius to a negative number like -1.
-;   4) You can also use the blacklist and whitelist features in combination with each other and in combination with the radius.
-;      For example, if the radius is mostly good but some spawns within it put you in like a hole, you can blacklist those spawns.
-;      Apply the inverse concept for a whitelist.
-;   5) In your blacklist.txt and/or whitelist.txt, each line should be of the following format:
-;      X1,Z1;X2,Z2
-;      Those coordinates should be opposite corners of a rectangle. Any spawns within that rectangle will be automatically counted as a good spawn if that rectangle was obtained from whitelist.txt.
-;      Similarly, if that rectangle is obtained from blacklist.txt, any spawns within that rectangle will be resetted automatically. The whitelist is consulted first, the blacklist second, and the radius last.
-;   6) If the autoresetter gives you a spawn that you don't like, you can add it to the blacklist by pressing Ctrl B (the same thing you would press to bold text).
-;      It will blacklist the most recent spawn of the active instance, so keep that in mind when pressing Ctrl B.
-;   7) Because of this feature, I recommend starting out with a higher radius than you would need, then just add bad spawns to the blacklist.
-;   8) If no spawns are available, then you can tab out, and it will continue to run and will activate the next instance that has a good spawn.
-;   9) If you reset and multiple spawns are available, then it will activate the instance with the closest spawn to the focal point.
+; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
 #NoEnv
 #SingleInstance Force
@@ -60,7 +39,12 @@ global difficulty := "Normal" ; Set difficulty here. Options: "Peaceful" "Easy" 
 global SEED := "-3294725893620991126" ; Default seed is the current Any% SSG 1.16+ seed, you can change it to whatever seed you want.
 global giveAngle := True ; Give the angle (TTS) that you need to travel at to get to your starting point
 
-; Don't configure these
+
+
+
+
+
+; Don't configure these, scroll to the very bottom to configure hotkeys
 global currInst := -1
 global pauseAuto := False
 global SavesDirectories := []
@@ -404,7 +388,7 @@ return rawPIDs.MaxIndex()
 GetInstanceNumberFromSaves(saves) {
   numFile := saves . "instanceNumber.txt"
   num := -1
-  if (saves == "" || saves == ".minecraft") ; Misread something
+  if (saves == "" || saves == ".minecraft" || saves == ".minecraft\" || saves == ".minecraft/") ; Misread something
     Reload
   if (!FileExist(numFile))
     MsgBox, Missing instanceNumber.txt in %saves%. Run the setup script (see instructions)
