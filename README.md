@@ -12,6 +12,8 @@ First release expected by December 19, 2021.
 
 ## Setup instructions
 
+Download the [latest release].
+
 ### Macro options
 
 ### Autoresetter options
@@ -27,3 +29,5 @@ Specnr - original creator of this macro
 jojoe77777 - miscellaneous help
 
 MagneticMaybe, Rayoh, HanabiYaki - early testing
+
+  [latest release]: <https://github.com/pjagada/spawn-juicer/releases/latest>
