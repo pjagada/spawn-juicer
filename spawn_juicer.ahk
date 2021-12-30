@@ -3,6 +3,8 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
+; v1.0
+
 #NoEnv
 #SingleInstance Force
 ;#Warn
@@ -15,25 +17,23 @@ SetTitleMatchMode, 2
 global instanceFreezing := True ; you probably want to keep this on (true)
 global unpauseOnSwitch := False
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
-global playSound := True ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
+global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
-global countAttempts := True
-global beforeFreezeDelay := 2000 ; increase if doesnt join world
-global fullScreenDelay := 400 ; increse if fullscreening issues
-global obsDelay := 100 ; increase if not changing scenes in obs
+global beforeFreezeDelay := 170 ; increase if doesnt join world
+global fullScreenDelay := 270 ; increse if fullscreening issues
+global obsDelay := 50 ; increase if not changing scenes in obs
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
-global screenDelay := 200 ; normal delay of each world creation screen, increase if random seeds are being created1, decrease for faster resets
-global oldWorldsFolder := "C:\Users\prana\OneDrive\Desktop\Minecraft\oldWorlds\" ; Old Worlds folder, make it whatever you want
+global screenDelay := 70 ; normal delay of each world creation screen, increase if random seeds are being created, decrease for faster resets
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
-global f3showDelay = 500 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
+global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
 global muteResets := True ; mute resetting sounds
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
 global centerPointX := 162.7 ; this is the x coordinate of that certain point (by default it's the x coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global centerPointZ := 194.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
-global radius := 20 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global radius := 9 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global difficulty := "Normal" ; Set difficulty here. Options: "Peaceful" "Easy" "Normal" "Hard" "Hardcore"
 global SEED := "-3294725893620991126" ; Default seed is the current Any% SSG 1.16+ seed, you can change it to whatever seed you want.
@@ -199,7 +199,9 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 7) ; on more world options screen
   {
     MoreWorldOptionsScreen(idx)
+    resetStates[idx] += 2
   }
+  /*
   else if (resetStates[idx] == 8) ; track flint
   {
     TrackFlint(idx)
@@ -207,6 +209,7 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 9) { ; Move worlds
     MoveWorlds(idx)
   }
+  */
   else if (resetStates[idx] == 10) { ; checking if loaded in
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title))
@@ -464,21 +467,18 @@ SwitchInstance(idx)
   Unmute(idx)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
-  send {Numpad%idx% down}
   ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
+  send {Numpad%idx% down}
   sleep, %obsDelay%
   send {Numpad%idx% up}
   if (fullscreen) {
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
   }
-  /*
-  WinGetPos, deez, nuts, W, H, Minecraft
-  X := W / 2
-  Y := H / 2
-  MouseMove, X, Y, 0
-  Send, {LButton} ; Make sure the window is activated
-  */
+  if (unpauseOnSwitch)
+  {
+    Send, {LButton} ; Make sure the window is activated
+  }
   ShowF3()
 }
 
@@ -496,149 +496,10 @@ ShowF3()
    ControlSend, ahk_parent, {Esc}, ahk_exe javaw.exe
 }
 
-TrackFlint(n)
-{
-  mcDirectory := SavesDirectories[n]
-  lastWorld := getMostRecentFile(mcDirectory)
-  pathArray := StrSplit(lastWorld, "\")
-  justWorld := pathArray[pathArray.MaxIndex()]
-  if ((!(InStr(justWorld, "New World") || InStr(justWorld, "Speedrun #"))) or (InStr(justWorld, "_")))
-  {
-    OutputDebug, [macro] world name is %justWorld% so not tracking flint for that world
-    return
-  }
-   headers := "Time that run ended, Flint obtained, Gravel mined"
-   if (!FileExist("SSGstats.csv"))
-   {
-      FileAppend, %headers%, SSGstats.csv
-   }
-   numbersArray := gravelDrops(lastWorld)
-   flintDropped := numbersArray[1]
-   gravelMined := numbersArray[2]
-   theTime := readableTime()
-   numbers := theTime . "," . flintDropped . "," . gravelMined
-   debugOutput := theTime . ": Instance " . n . ": flint dropped: " . flintDropped . ", gravel mined: " . gravelMined
-   OutputDebug, [macro] %debugOutput%
-   FileAppend, `n, SSGstats.csv
-   FileAppend, %numbers%, SSGstats.csv
-}
-
 DebugHead(n)
 {
   writeString := "[macro] " . readableTime() . ": Instance " . n . ": "
   return writeString
-}
-
-gravelDrops(lastWorld)
-{
-   currentWorld := lastWorld
-   statsFolder := currentWorld . "\stats"
-   Loop, Files, %statsFolder%\*.*, F
-   {
-      statsFile := A_LoopFileLongPath
-   }
-   FileReadLine, fileText, %statsFile%, 1
-   
-   minedLocation := InStr(fileText, "minecraft:mined")
-   if (minedLocation)
-   {
-      gravelLocation := InStr(fileText, "minecraft:gravel", , minedLocation)
-      if (gravelLocation)
-      {
-         postMined := SubStr(fileText, gravelLocation)
-         gravelArray1 := StrSplit(postMined, ":")
-         gravelSubString := gravelArray1[3]
-         gravelArray2 := StrSplit(gravelSubString, "}")
-         gravelSubString2 := gravelArray2[1]
-         gravelArray3 := StrSplit(gravelSubString2, ",")
-         gravelMined := gravelArray3[1]
-      }
-      else
-         gravelMined := 0
-   }
-   else
-      gravelMined := 0
-   
-   pickedupLocation := Instr(fileText, "minecraft:picked_up")
-   if (pickedupLocation)
-   {
-      flintLocation := InStr(fileText, "minecraft:flint", , pickedupLocation)
-      if (flintLocation)
-      {
-         postPickedup := SubStr(fileText, flintLocation)
-         flintArray1 := StrSplit(postPickedup, ":")
-         flintSubString := flintArray1[3]
-         flintArray2 := StrSplit(flintSubString, "}")
-         flintSubString2 := flintArray2[1]
-         flintArray3 := StrSplit(flintSubString2, ",")
-         flintCollected := flintArray3[1]
-      }
-      else
-         flintCollected := 0
-   }
-   else
-      flintCollected := 0
-   
-   return ([flintCollected, gravelMined])
-}
-
-UpdateStats()
-{
-   if (FileExist("SSGstats.csv"))
-   {
-      FileDelete, SSGstats.txt
-      headerRead := false
-      totalFlint := 0
-      totalGravel := 0
-      totalAttempts := 0
-      todayFlint := 0
-      todayGravel := 0
-      todayAttempts := 0
-      Loop, read, SSGstats.csv
-      {
-         if (headerRead)
-         {
-            theArray := StrSplit(A_LoopReadLine, ",")
-            totalFlint += theArray[2]
-            totalGravel += theArray[3]
-            totalAttempts += 1
-            currentDate := A_Now // 1000000
-            readTime := theArray[1]
-            dateTimeArray := StrSplit(readTime, " ")
-            rowDate := dateTimeArray[1]
-            dateArray := StrSplit(rowDate, "/")
-            theMonth := dateArray[1]
-            theDay := dateArray[2]
-            theYear := dateArray[3]
-            readDate := theYear . theMonth . theDay
-            if (readDate = currentDate)
-            {
-               todayFlint += theArray[2]
-               todayGravel += theArray[3]
-               todayAttempts += 1
-            }
-         }
-         headerRead := true
-      }
-      flintRate := 100 * totalFlint / totalGravel
-      dailyFlintRate := 100 * todayFlint / todayGravel
-      theString := totalAttempts . " attempts tracked" . "`n" . totalFlint . " flint drops out of " . totalGravel . " gravel mined for a rate of " flintRate . " percent" . "`n`n" . todayAttempts . " attempts tracked today" . "`n" . todayFlint . " flint drops out of " . todayGravel . " gravel mined for a rate of " dailyFlintRate . " percent"
-      FileAppend, %theString%, SSGstats.txt
-   }
-}
-
-MoveWorlds(idx)
-{
-  dir := SavesDirectories[idx] . "saves\"
-  Loop, Files, %dir%*, D
-  {
-    If (InStr(A_LoopFileName, "New World") || InStr(A_LoopFileName, "Speedrun #")) {
-      tmp := A_NowUTC
-      ;MsgBox, %A_LoopFileName%
-      FileMoveDir, %dir%%A_LoopFileName%, %dir%%A_LoopFileName%%tmp%Instance %idx%, R
-      FileMoveDir, %dir%%A_LoopFileName%%tmp%Instance %idx%, %oldWorldsFolder%%A_LoopFileName%%tmp%Instance %idx%
-    }
-  }
 }
 
 GetActiveInstanceNum() {
@@ -765,14 +626,14 @@ WaitForHost(savesDirectory)
    while (!openedToLAN)
    {
       OutputDebug, reading log file
-      if ((A_TickCount - startTime) > 5000)
+      if ((A_TickCount - startTime) > 3000)
       {
          OutputDebug, open to lan timed out
          openedToLAN := True
       }
       Loop, Read, %logFile%
       {
-         if ((A_TickCount - startTime) > 5000)
+         if ((A_TickCount - startTime) > 3000)
          {
             OutputDebug, open to lan timed out
             openedToLAN := True
@@ -1129,6 +990,7 @@ AddToBlacklist()
   RAlt::  ; Pause all macros
     Suspend
   return
+  
     PgDn:: ; Reset
       ExitWorld()
     return
@@ -1136,10 +998,6 @@ AddToBlacklist()
     End:: ; Perch
 		Perch()
 	return
-    
-    Insert::
-      Test()
-    return
 
     F5:: ; Reload if macro locks up
       UnmuteAll()
@@ -1150,18 +1008,14 @@ AddToBlacklist()
    ^B:: ; Add a spawn to the blacklisted spawns.
 		AddToBlacklist()
 	return
-    
-   ^End:: ; Safely close the script
-      UnmuteAll()
-      UnsuspendAll()
-      ExitApp
-   return
    
   Delete:: ; kill villager
     GiveSword()
   return
-  
-  ^H:: ; update the stats text file (make sure it's closed in notepad before running this)
-    UpdateStats()
-  return
 }
+
+^End:: ; Safely close the script
+  UnmuteAll()
+  UnsuspendAll()
+  ExitApp
+return
