@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.0
+; v1.1
 
 #NoEnv
 #SingleInstance Force
@@ -28,18 +28,17 @@ global screenDelay := 70 ; normal delay of each world creation screen, increase 
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
 global muteResets := True ; mute resetting sounds
+global stopResetsWhilePlaying := False ; stop resets when a spawn is found
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
 global centerPointX := 162.7 ; this is the x coordinate of that certain point (by default it's the x coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global centerPointZ := 194.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
-global radius := 9 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global radius := 13 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global difficulty := "Normal" ; Set difficulty here. Options: "Peaceful" "Easy" "Normal" "Hard" "Hardcore"
 global SEED := "-3294725893620991126" ; Default seed is the current Any% SSG 1.16+ seed, you can change it to whatever seed you want.
 global giveAngle := True ; Give the angle (TTS) that you need to travel at to get to your starting point
-
-
 
 
 
@@ -105,8 +104,6 @@ for k, saves_directory in SavesDirectories
 	}
 }
 
-IfNotExist, %oldWorldsFolder%
-  FileCreateDir %oldWorldsFolder%
 if (!disableTTS)
   ComObjCreate("SAPI.SpVoice").Speak("Ready")
 MsgBox, resetting will start when you close this box
@@ -130,7 +127,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 13)
+      if (state >= 20)
       {
         instancesWithGoodSpawns.Push(r)
       }
@@ -161,7 +158,8 @@ HandlePlayerState()
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
       playerState := 1 ; running
-      
+      if (stopResetsWhilePlaying)
+        playerState := 2 ; running and stop background resetting
     }
   }
 }
@@ -199,18 +197,8 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 7) ; on more world options screen
   {
     MoreWorldOptionsScreen(idx)
-    resetStates[idx] += 2
   }
-  /*
-  else if (resetStates[idx] == 8) ; track flint
-  {
-    TrackFlint(idx)
-  }
-  else if (resetStates[idx] == 9) { ; Move worlds
-    MoveWorlds(idx)
-  }
-  */
-  else if (resetStates[idx] == 10) { ; checking if loaded in
+  else if (resetStates[idx] == 8) { ; checking if loaded in
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title))
     {
@@ -221,14 +209,18 @@ HandleResetState(pid, idx) {
       return
     }
   }
-  else if (resetStates[idx] == 11) ; get spawn
+  else if (resetStates[idx] == 9) ; get spawn
   {
     GetSpawn(idx)
   }
-  else if (resetStates[idx] == 12) ; check spawn
+  else if (resetStates[idx] == 10) ; check spawn
   {
     if (GoodSpawn(idx)) {
-      resetStates[idx] := 13 ; good spawn unfrozen
+      resetStates[idx] := 21 ; good spawn unfrozen
+    }
+    else if (playerState == 2) ; player is running and wants background resets stopped so even though this is a bad spawn we want to freeze it
+    {
+      resetStates[idx] := 11 ; bad spawn unfrozen
     }
     else
     {
@@ -236,7 +228,20 @@ HandleResetState(pid, idx) {
     }
     return
   }
-  else if (resetStates[idx] == 13) ; good spawn waiting to reach final save
+  else if (resetStates[idx] == 11) ; bad spawn unfrozen but needs to be frozen
+  {
+    SuspendInstance(pid)
+  }
+  else if (resetStates[idx] == 12) ; bad spawn frozen waiting for resetting to resume
+  {
+    if (playerState < 2)
+    {
+      ResumeInstance(pid)
+      resetStates[idx] := 2 ; need to exit world2
+    }
+    return
+  }
+  else if (resetStates[idx] == 21) ; waiting to reach final save
   {
     if (playerState == 0) ; needs spawn so this instance about to be used
     {
@@ -248,7 +253,7 @@ HandleResetState(pid, idx) {
     }
     startTimes[idx] := A_TickCount
   }
-  else if (resetStates[idx] == 14) ; good spawn waiting for freeze delay to finish then freezing
+  else if (resetStates[idx] == 22) ; good spawn waiting for freeze delay to finish then freezing
   {
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
@@ -256,7 +261,7 @@ HandleResetState(pid, idx) {
     }
     SuspendInstance(pid)
   }
-  else if (resetStates[idx] == 15) ; frozen good spawn waiting to be used
+  else if (resetStates[idx] == 23) ; frozen good spawn waiting to be used
   {
     return
   }
@@ -518,15 +523,18 @@ IsInGame(currTitle) { ; If using another language, change Singleplayer and Multi
 return InStr(currTitle, "Singleplayer") || InStr(currTitle, "Multiplayer") || InStr(currTitle, "Instance")
 }
 
-ExitWorld()
+Reset(state)
 {
   idx := GetActiveInstanceNum()
   if (inFullscreen(idx)) {
     send, {F11}
     sleep, %fullScreenDelay%
   }
-  playerState := 0 ; needs spawn
-  resetStates[idx] := 1 ; needs to exit from play
+  playerState := state ; needs spawn or keep resetting
+  if (resetStates[idx] == 0) ; instance is being played
+  {
+    resetStates[idx] := 1 ; needs to exit from play
+  }
   
 }
 
@@ -991,8 +999,12 @@ AddToBlacklist()
     Suspend
   return
   
-    PgDn:: ; Reset
-      ExitWorld()
+    PgDn:: ; Reset and give spawn
+      Reset(0)
+    return
+    
+    PgUp:: ; Reset but don't give spawn and keep resetting until all instances have a good spawn (don't worry about this if stopResetsWhilePlaying is False)
+      Reset(-1)
     return
     
     End:: ; Perch
