@@ -16,7 +16,7 @@ SetTitleMatchMode, 2
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
 global unpauseOnSwitch := False
-global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
+global fullscreen := True ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
 global beforeFreezeDelay := 170 ; increase if doesnt join world
@@ -24,7 +24,7 @@ global fullScreenDelay := 270 ; increse if fullscreening issues
 global obsDelay := 50 ; increase if not changing scenes in obs
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
-global screenDelay := 70 ; normal delay of each world creation screen, increase if random seeds are being created, decrease for faster resets
+global screenDelay := 200 ; normal delay of each world creation screen, increase if random seeds are being created, decrease for faster resets
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
 global muteResets := True ; mute resetting sounds
@@ -478,7 +478,7 @@ SwitchInstance(idx)
   send {Numpad%idx% up}
   if (fullscreen) {
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
-    sleep, %fullScreenDelay%
+    ;sleep, %fullScreenDelay%
   }
   if (unpauseOnSwitch)
   {
@@ -765,11 +765,11 @@ InputSeed(thePID)
   Sleep, 5
    if WinActive("ahk_pid" thePID)
    {
-      SendInput, %SEED%
+      SendInput, {Blind}{Text}%SEED%
    }
    else
    {
-      ControlSend, ahk_parent, {Blind}%SEED%, ahk_pid %thePID%
+      ControlSend, ahk_parent, {Blind}{Text}%SEED%, ahk_pid %thePID%
    }
    Sleep, 5
    SetKeyDelay, 0
