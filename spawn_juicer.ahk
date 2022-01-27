@@ -16,18 +16,15 @@ SetTitleMatchMode, 2
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
 global unpauseOnSwitch := False
-global fullscreen := True ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
+global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
-global beforeFreezeDelay := 170 ; increase if doesnt join world
 global fullScreenDelay := 270 ; increse if fullscreening issues
 global obsDelay := 50 ; increase if not changing scenes in obs
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
-global screenDelay := 200 ; normal delay of each world creation screen, increase if random seeds are being created, decrease for faster resets
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
-global muteResets := True ; mute resetting sounds
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -35,9 +32,7 @@ global centerPointX := 162.7 ; this is the x coordinate of that certain point (b
 global centerPointZ := 194.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global radius := 13 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
-global difficulty := "Normal" ; Set difficulty here. Options: "Peaceful" "Easy" "Normal" "Hard" "Hardcore"
-global SEED := "-3294725893620991126" ; Default seed is the current Any% SSG 1.16+ seed, you can change it to whatever seed you want.
-global giveAngle := True ; Give the angle (TTS) that you need to travel at to get to your starting point
+global giveAngle := False ; Give the angle (TTS) that you need to travel at to get to your starting point
 
 
 
@@ -57,6 +52,7 @@ global reachedSave := []
 global xCoords := []
 global zCoords := []
 global distances := []
+global beforeFreezeDelay := 0 ; increase if doesnt join world
 global playerState := 0 ; needs spawn
 
 if (instanceFreezing) {
@@ -85,11 +81,6 @@ for i, tmppid in PIDs{
   startTimes.Push(A_TickCount)
   reachedSave.Push(false)
   WinSet, AlwaysOnTop, Off, ahk_pid %tmppid%
-}
-if ((difficulty != "Peaceful") and (difficulty != "Easy") and (difficulty != "Normal") and (difficulty != "Hard") and (difficulty != "Hardcore"))
-{
-   MsgBox, Difficulty entered is invalid. Please check your spelling and enter a valid difficulty. Options are "Peaceful" "Easy" "Normal" "Hard" or "Hardcore"
-   ExitApp
 }
 global version = getVersion()
 
@@ -126,7 +117,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 11)
+      if (state >= 7)
       {
         instancesWithGoodSpawns.Push(r)
       }
@@ -168,36 +159,30 @@ HandleResetState(pid, idx) {
     return
   else if (resetStates[idx] == 1) ; needs to reset from play
   {
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
     WinSet, AlwaysOnTop, Off, ahk_pid %pid%
     ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
   }
   else if (resetStates[idx] == 2) ; need to exit world from pause
   {
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
   }
-  else if (resetStates[idx] == 3) ; exiting world
+  else if (resetStates[idx] == 3) ; waiting to enter time between worlds
   {
-    if (inWorld(idx))
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
+    WinGetTitle, title, ahk_pid %pid%
+    if (IsInGame(title))
+    {
       return
+    }
   }
-  else if (resetStates[idx] == 4) ; on title screen
-  {
-    Mute(idx)
-    EnterSingleplayer(idx)
-  }
-  else if (resetStates[idx] == 5) ; on world list screen
-  {
-    WorldListScreen(idx)
-  }
-  else if (resetStates[idx] == 6) ; on create new world screen
-  {
-    CreateNewWorldScreen(idx)
-  }
-  else if (resetStates[idx] == 7) ; on more world options screen
-  {
-    MoreWorldOptionsScreen(idx)
-  }
-  else if (resetStates[idx] == 8) { ; checking if loaded in
+  else if (resetStates[idx] == 4) { ; checking if loaded in
+    theState := resetStates[idx]
+    ;OutputDebug, [macro] Instance %idx% in state %theState%
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title))
     {
@@ -208,14 +193,18 @@ HandleResetState(pid, idx) {
       return
     }
   }
-  else if (resetStates[idx] == 9) ; get spawn
+  else if (resetStates[idx] == 5) ; get spawn
   {
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
     GetSpawn(idx)
   }
-  else if (resetStates[idx] == 10) ; check spawn
+  else if (resetStates[idx] == 6) ; check spawn
   {
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
     if (GoodSpawn(idx)) {
-      resetStates[idx] := 11 ; good spawn unfrozen
+      resetStates[idx] := 7 ; good spawn unfrozen
     }
     else
     {
@@ -223,8 +212,10 @@ HandleResetState(pid, idx) {
     }
     return
   }
-  else if (resetStates[idx] == 11) ; good spawn waiting to reach final save
+  else if (resetStates[idx] == 7) ; good spawn waiting to reach final save
   {
+    theState := resetStates[idx]
+    ;OutputDebug, [macro] Instance %idx% in state %theState%
     if (playerState == 0) ; needs spawn so this instance about to be used
     {
       return
@@ -235,20 +226,23 @@ HandleResetState(pid, idx) {
     }
     startTimes[idx] := A_TickCount
   }
-  else if (resetStates[idx] == 12) ; good spawn waiting for freeze delay to finish then freezing
+  else if (resetStates[idx] == 8) ; good spawn waiting for freeze delay to finish then freezing
   {
+    theState := resetStates[idx]
+    OutputDebug, [macro] Instance %idx% in state %theState%
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
       return
     }
     SuspendInstance(pid)
   }
-  else if (resetStates[idx] == 13) ; frozen good spawn waiting to be used
+  else if (resetStates[idx] == 9) ; frozen good spawn waiting to be used
   {
     return
   }
   else {
-    MsgBox, instance %idx% ended up at some other reset state, exiting script
+    theState := resetStates[idx]
+    MsgBox, instance %idx% ended up at unknown reset state of %theState%, exiting script
     ExitApp
   }
   resetStates[idx] += 1 ; Progress State
@@ -292,7 +286,7 @@ RunHide(Command)
   }
   catch e
   {
-    MsgBox, Error when muting or unmuting. You probably don't have the SoundVolumeView.exe in the same folder as this script. Either set muteResets to False or put that exe file in the same folder as this script.
+    MsgBox, Error running command
     UnsuspendAll()
     ExitApp
   }
@@ -301,44 +295,6 @@ RunHide(Command)
   DllCall("FreeConsole")
   Process, Close, %cPid%
 Return Result
-}
-
-Mute(n)
-{
-  if (muteResets == False)
-    return
-  thePID := PIDs[n]
-  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Mute ""{1}"""
-  command := Format(preString, thePID)
-  ;MsgBox, %command%
-  rawOut := RunHide(command)
-}
-
-Unmute(n)
-{
-  if (muteResets == False)
-    return
-  thePID := PIDs[n]
-  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Unmute ""{1}"""
-  command := Format(preString, thePID)
-  ;MsgBox, %command%
-  rawOut := RunHide(command)
-}
-
-MuteAll()
-{
-  for n, thePID in PIDs
-  {
-    Mute(n)
-  }
-}
-
-UnmuteAll()
-{
-  for n, thePID in PIDs
-  {
-   Unmute(n)
-  }
 }
 
 GetSavesDir(pid)
@@ -451,7 +407,6 @@ SwitchInstance(idx)
   thePID := PIDs[idx]
   if (instanceFreezing)
     ResumeInstance(thePID)
-  Unmute(idx)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
@@ -464,6 +419,7 @@ SwitchInstance(idx)
   }
   if (unpauseOnSwitch)
   {
+    ControlSend, ahk_parent, {Esc}, ahk_pid %thePID%
     Send, {LButton} ; Make sure the window is activated
   }
   ShowF3()
@@ -505,7 +461,7 @@ IsInGame(currTitle) { ; If using another language, change Singleplayer and Multi
 return InStr(currTitle, "Singleplayer") || InStr(currTitle, "Multiplayer") || InStr(currTitle, "Instance")
 }
 
-Reset(state)
+Reset(state := 0)
 {
   idx := GetActiveInstanceNum()
   if (inFullscreen(idx)) {
@@ -675,86 +631,6 @@ getMostRecentFile(mcDirectory)
 	}
    recentFile := mostRecentFile
    return (recentFile)
-}
-
-EnterSingleplayer(n)
-{
-	thePID := PIDs[n]
-	Sleep, %screenDelay%
-    ControlSend, ahk_parent, {Blind}{Tab}{Enter}, ahk_pid %thePID%
-}
-
-WorldListScreen(n)
-{
-  thePID := PIDs[n]
-  ControlSend, ahk_parent, {Blind}{Tab 3}, ahk_pid %thePID%
-  Sleep, %screenDelay%
-  ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-}
-
-CreateNewWorldScreen(n)
-{
-  thePID := PIDs[n]
-  if (difficulty = "Normal")
-  {
-    ControlSend, ahk_parent, {Blind}{Tab 6}, ahk_pid %thePID%
-  }
-  else
-  {
-    ControlSend, ahk_parent, {Blind}{Tab}, ahk_pid %thePID%
-    if (difficulty = "Hardcore")
-    {
-      ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-    }
-    ControlSend, ahk_parent, {Blind}{Tab}, ahk_pid %thePID%
-    if (difficulty != "Hardcore")
-    {
-      ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-      if (difficulty != "Hard")
-      {
-        ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-        if (difficulty != "Peaceful")
-        {
-          ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-        }
-      }
-    }
-    if (difficulty != "Hardcore")
-    {
-      ControlSend, ahk_parent, {Blind}{Tab}{Tab}, ahk_pid %thePID%
-    }
-    ControlSend, ahk_parent, {Blind}{Tab}{Tab}, ahk_pid %thePID%
-  }
-  Sleep, %screenDelay%
-  ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-}
-
-MoreWorldOptionsScreen(n)
-{
-	thePID := PIDs[n]
-      ControlSend, ahk_parent, {Blind}{Tab 3}, ahk_pid %thePID%
-      Sleep, 1
-      InputSeed(thePID)
-      Sleep, 1
-      ControlSend, ahk_parent, {Blind}{Tab 6}, ahk_pid %thePID%
-      Sleep, %screenDelay%
-      ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID%
-}
-
-InputSeed(thePID)
-{
-  SetKeyDelay, 1
-  Sleep, 5
-   if WinActive("ahk_pid" thePID)
-   {
-      SendInput, {Blind}{Text}%SEED%
-   }
-   else
-   {
-      ControlSend, ahk_parent, {Blind}{Text}%SEED%, ahk_pid %thePID%
-   }
-   Sleep, 5
-   SetKeyDelay, 0
 }
 
 Test()
@@ -954,10 +830,6 @@ AlertUser(n)
 		else
 			SoundPlay *16
 	}
-	if (unpauseOnSwitch = true)
-	{
-		Send, {Esc}
-	}
     GiveAngle(n)
 }
 
@@ -990,7 +862,6 @@ AddToBlacklist()
 	return
 
     F5:: ; Reload if macro locks up
-      UnmuteAll()
       UnsuspendAll()
       Reload
    return 
@@ -1005,7 +876,6 @@ AddToBlacklist()
 }
 
 ^End:: ; Safely close the script
-  UnmuteAll()
   UnsuspendAll()
   ExitApp
 return
