@@ -61,7 +61,7 @@ jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting
 
 MagneticMaybe, Rayoh, HanabiYaki - early testing
 
-VoidXWalker - atum mod
+Void_X_Walker - atum mod
 
   [latest release]: <https://github.com/pjagada/spawn-juicer/releases/latest>
   [the setup video]: <https://youtu.be/0xAHMW93MQw>
