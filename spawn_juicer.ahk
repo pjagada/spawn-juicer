@@ -28,7 +28,6 @@ global screenDelay := 200 ; normal delay of each world creation screen, increase
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
 global muteResets := True ; mute resetting sounds
-global stopResetsWhilePlaying := False ; stop resets when a spawn is found
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -127,7 +126,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 20)
+      if (state >= 11)
       {
         instancesWithGoodSpawns.Push(r)
       }
@@ -158,8 +157,8 @@ HandlePlayerState()
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
       playerState := 1 ; running
-      if (stopResetsWhilePlaying)
-        playerState := 2 ; running and stop background resetting
+      ;if (stopResetsWhilePlaying)
+      ;  playerState := 2 ; running and stop background resetting
     }
   }
 }
@@ -216,11 +215,7 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 10) ; check spawn
   {
     if (GoodSpawn(idx)) {
-      resetStates[idx] := 21 ; good spawn unfrozen
-    }
-    else if (playerState == 2) ; player is running and wants background resets stopped so even though this is a bad spawn we want to freeze it
-    {
-      resetStates[idx] := 11 ; bad spawn unfrozen
+      resetStates[idx] := 11 ; good spawn unfrozen
     }
     else
     {
@@ -228,20 +223,7 @@ HandleResetState(pid, idx) {
     }
     return
   }
-  else if (resetStates[idx] == 11) ; bad spawn unfrozen but needs to be frozen
-  {
-    SuspendInstance(pid)
-  }
-  else if (resetStates[idx] == 12) ; bad spawn frozen waiting for resetting to resume
-  {
-    if (playerState < 2)
-    {
-      ResumeInstance(pid)
-      resetStates[idx] := 2 ; need to exit world2
-    }
-    return
-  }
-  else if (resetStates[idx] == 21) ; waiting to reach final save
+  else if (resetStates[idx] == 11) ; good spawn waiting to reach final save
   {
     if (playerState == 0) ; needs spawn so this instance about to be used
     {
@@ -253,7 +235,7 @@ HandleResetState(pid, idx) {
     }
     startTimes[idx] := A_TickCount
   }
-  else if (resetStates[idx] == 22) ; good spawn waiting for freeze delay to finish then freezing
+  else if (resetStates[idx] == 12) ; good spawn waiting for freeze delay to finish then freezing
   {
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
@@ -261,7 +243,7 @@ HandleResetState(pid, idx) {
     }
     SuspendInstance(pid)
   }
-  else if (resetStates[idx] == 23) ; frozen good spawn waiting to be used
+  else if (resetStates[idx] == 13) ; frozen good spawn waiting to be used
   {
     return
   }
@@ -1001,10 +983,6 @@ AddToBlacklist()
   
     PgDn:: ; Reset and give spawn
       Reset(0)
-    return
-    
-    PgUp:: ; Reset but don't give spawn and keep resetting until all instances have a good spawn (don't worry about this if stopResetsWhilePlaying is False)
-      Reset(-1)
     return
     
     End:: ; Perch
