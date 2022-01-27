@@ -66,14 +66,7 @@ tmptitle := ""
 for i, tmppid in PIDs{
   WinGetTitle, tmptitle, ahk_pid %tmppid%
   titles.Push(tmptitle)
-  if (inWorld(i))
-  {
-    resetStates.push(2) ; need to exit
-  }
-  else
-  {
-    resetStates.push(4) ; on title screen
-  }
+  resetStates.push(2) ; need to exit
   resetTimes.push(0)
   xCoords.Push(0)
   zCoords.Push(0)
