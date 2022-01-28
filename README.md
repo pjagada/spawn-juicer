@@ -6,7 +6,8 @@ Reset macro for multi-instance Minecraft Java Edition 1.16+ set seed speedrunnin
 
 - Each instance continuously and automatically resets until a good spawn is found.
 - The player will automatically be switched to the instance with the best spawn.
-- Any instance not being played or resetted can be suspended automatically to use no processing resources.
+- Any instance not being played or resetted can be suspended automatically to use no processing resources, with the option to free memory.
+- Custom affinity can be set for playing versus background instances for performance.
 - Compatible with Fast Reset mod
 - v1.2 and beyond require [atum] (not legal yet but will be soon)
 - The "goodness" of a spawn is judged off of its distance to a user-defined centerpoint.
