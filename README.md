@@ -30,6 +30,8 @@ Download the [latest release] and extract all files into one folder.
 
 Watch [the setup video] and follow those instructions (the macro options are slightly different). The setup script in the video is the same as the one you just downloaded, and the actual reset script is replaced by spawn_juicer.ahk.
 
+When starting up the macro, make sure that all instances are either on the title screen or on the pause menu of an atum-ed world.
+
 ### Autoresetter blacklists
 - [My blacklist] (for 1.17 ssg gravel seed)
 - [LeonToast's blacklist] (for 1.17 ssg gravel seed but stricter)
