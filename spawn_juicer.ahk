@@ -28,7 +28,7 @@ global restartDelay := 200 ; increase if saying missing instanceNumber in .minec
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
-global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because i2t'll slow things down
+global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
