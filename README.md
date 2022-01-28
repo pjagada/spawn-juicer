@@ -59,6 +59,8 @@ Specnr - original creator of this macro
 
 jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting
 
+EvanKae - affinity help
+
 MagneticMaybe, Rayoh, HanabiYaki - early testing
 
 Void_X_Walker - atum mod
