@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.2
+; v1.3
 
 #NoEnv
 #SingleInstance Force
@@ -16,7 +16,8 @@ SetTitleMatchMode, 2
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
 global freeMemory := True ; free memory of an instance when it suspends
-global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less 
+global affinity := True ; 
+global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
 global unpauseOnSwitch := False
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
@@ -93,9 +94,9 @@ for k, saves_directory in SavesDirectories
 }
 
 if (affinity) {
-  Logg("Setting high affinity for all instances")
+  Logg("Setting high affinity for all instances since starting script")
   for i, tmppid in PIDs {
-    Logg("Setting high affinity for instance " . i)
+    Logg("Setting high affinity for instance " . i . " since starting script")
     SetAffinity(tmppid, highBitMask)
   }
 }
@@ -126,6 +127,7 @@ HandlePlayerState()
       if (state >= 7)
       {
         instancesWithGoodSpawns.Push(r)
+        Logg("Instance " . r . " has a good spawn so adding it to instancesWithGoodSpawns")
       }
     }
     bestSpawn := -1
@@ -147,7 +149,7 @@ HandlePlayerState()
 	}
 	if (counter > 0)
 	{
-      writeString := readableTime() . ": player given spawn of distance " . minDist
+      writeString := readableTime() . ": player given spawn of distance " . minDist . "`n"
       OutputDebug, [macro] %writeString%
       FileAppend, %writeString%, macro_logs.txt
       resetStates[bestSpawn] := 0 ; running
@@ -166,20 +168,19 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 1) ; needs to reset from play
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
+    Logg("Instance " . idx . " in state " . theState)
     WinSet, AlwaysOnTop, Off, ahk_pid %pid%
     ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
   }
   else if (resetStates[idx] == 2) ; need to exit world from pause
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
+    Logg("Instance " . idx . " in state " . theState)
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
   }
   else if (resetStates[idx] == 3) ; waiting to enter time between worlds
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title))
     {
@@ -202,18 +203,20 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 5) ; get spawn
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
+    Logg("Instance " . idx . " in state " . theState)
     GetSpawn(idx)
   }
   else if (resetStates[idx] == 6) ; check spawn
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
+    Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
+      Logg("Instance " . idx . " has a good spawn so switching to state 7")
       resetStates[idx] := 7 ; good spawn unfrozen
     }
     else
     {
+      Logg("Instance " . idx . " has a bad spawn so switching to state 2")
       resetStates[idx] := 2 ; need to exit world
     }
     return
@@ -235,11 +238,12 @@ HandleResetState(pid, idx) {
   else if (resetStates[idx] == 8) ; good spawn waiting for freeze delay to finish then freezing
   {
     theState := resetStates[idx]
-    OutputDebug, [macro] Instance %idx% in state %theState%
+    Logg("Instance " . idx . " in state " . theState)
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
       return
     }
+    Logg("Instance " . idx . " has a good spawn so switching to state 9 and suspending")
     SuspendInstance(pid)
   }
   else if (resetStates[idx] == 9) ; frozen good spawn waiting to be used
@@ -403,7 +407,6 @@ SuspendInstance(pid) {
   if (freeMemory == True)
   {
     FreeMemory(pid)
-    Logg("Freed memory of instance with pid " . pid)
   }
   else
   {
@@ -432,7 +435,7 @@ SwitchInstance(idx)
   currInst := idx
   thePID := PIDs[idx]
   if (affinity) {
-    Logg("Setting low affinity for all instances")
+    Logg("Setting low affinity for all instances except instance " . idx . " since we're switching to that one")
     for i, tmppid in PIDs {
       if (tmppid != thePID){
         Logg("Setting low affinity for instance " . i)
@@ -444,6 +447,11 @@ SwitchInstance(idx)
   {
     Logg("Resuming instance " . idx)
     ResumeInstance(thePID)
+  }
+  if (affinity)
+  {
+    Logg("Setting high affinity for instance " . idx . " since we're switching to it")
+    SetAffinity(thePID, highBitMask)
   }
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
@@ -512,9 +520,9 @@ Reset(state := 0)
     resetStates[idx] := 1 ; needs to exit from play
   }
   if (affinity) {
-    Logg("Setting high affinity for all instances")
+    Logg("Setting high affinity for all instances since all instances are resetting now")
     for i, tmppid in PIDs {
-      Logg("Setting high affinity for instance " . i)
+      Logg("Setting high affinity for instance " . i . " since all instances are resetting now")
       SetAffinity(tmppid, highBitMask)
     }
   }
@@ -931,5 +939,12 @@ AddToBlacklist()
 
 ^End:: ; Safely close the script
   UnsuspendAll()
+  if (affinity) {
+    Logg("Setting high affinity for all instances since ending script")
+    for i, tmppid in PIDs {
+      Logg("Setting high affinity for instance " . i . " since ending script")
+      SetAffinity(tmppid, highBitMask)
+    }
+  }
   ExitApp
 return
