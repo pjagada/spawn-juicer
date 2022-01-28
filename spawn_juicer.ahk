@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.1
+; v1.2
 
 #NoEnv
 #SingleInstance Force
@@ -38,6 +38,7 @@ global giveAngle := False ; Give the angle (TTS) that you need to travel at to g
 
 
 ; Don't configure these, scroll to the very bottom to configure hotkeys
+EnvGet, threadCount, NUMBER_OF_PROCESSORS
 global currInst := -1
 global pauseAuto := False
 global SavesDirectories := []
@@ -54,6 +55,8 @@ global zCoords := []
 global distances := []
 global beforeFreezeDelay := 0 ; increase if doesnt join world
 global playerState := 0 ; needs spawn
+global highBitMask := (2 ** threadCount) - 1
+global lowBitMask := (2 ** Ceil(threadCount * 0.5)) - 1
 
 if (instanceFreezing) {
   UnsuspendAll()
@@ -85,6 +88,10 @@ for k, saves_directory in SavesDirectories
 		MsgBox, Instance %k% has pause on lost focus enabled. Disable this feature by pressing F3 + P in-game, then start the script again.
 		ExitApp
 	}
+}
+
+for i, tmppid in PIDs {
+    SetAffinity(tmppid, highBitMask)
 }
 
 if (!disableTTS)
@@ -394,12 +401,52 @@ IsProcessSuspended(pid) {
 return InStr(title, "Not Responding")
 }
 
+/*
+SwitchInstance(idx)
+{
+  currInst := idx
+  thePID := PIDs[idx]
+  if (instanceFreezing)
+    ResumeInstance(thePID)  
+  for i, tmppid in PIDs {
+        if (tmppid != thePID){
+          SetAffinity(tmppid, lowBitMask)
+        }
+      }
+  SetAffinity(thePID, highBitMask)
+  Unmute(idx)
+  WinSet, AlwaysOnTop, On, ahk_pid %thePID%
+  WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
+  ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
+
+  x := 12 + idx
+  send {F%x% down}
+  sleep, %obsDelay%
+  send {F%x% up}
+  if (fullscreen) {
+    ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
+    sleep, %fullScreenDelay%
+  }
+  if (unpauseOnSwitch)
+  {
+    Send, {LButton} ; Make sure the window is activated
+  }
+  ShowF3()
+}
+*/
+
 SwitchInstance(idx)
 {
   currInst := idx
   thePID := PIDs[idx]
   if (instanceFreezing)
     ResumeInstance(thePID)
+  for i, tmppid in PIDs {
+    if (tmppid != thePID) {
+      SetAffinity(tmppid, lowBitMask)
+    }
+  }
+  SetAffinity(thePID, highBitMask)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
@@ -408,7 +455,7 @@ SwitchInstance(idx)
   send {Numpad%idx% up}
   if (fullscreen) {
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
-    ;sleep, %fullScreenDelay%
+    sleep, %fullScreenDelay%
   }
   if (unpauseOnSwitch)
   {
@@ -768,6 +815,15 @@ GoodSpawn(n)
       OutputDebug, [macro] %writeString%
       return False
     }
+}
+
+Logg(inString)
+{
+  theTime := readableTime()
+  writeString := "[macro] " . theTime . ": " . inString
+  OutputDebug, %writeString%
+  writeString := theTime . ": " . inString . "`n"
+  FileAppend, %writeString%, macro_logs.txt
 }
 
 inList(xCoord, zCoord, fileName)
