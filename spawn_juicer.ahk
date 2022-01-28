@@ -16,6 +16,7 @@ SetTitleMatchMode, 2
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
 global freeMemory := True ; free memory of an instance when it suspends
+global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less 
 global unpauseOnSwitch := False
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
@@ -57,7 +58,7 @@ global distances := []
 global beforeFreezeDelay := 0 ; increase if doesnt join world
 global playerState := 0 ; needs spawn
 global highBitMask := (2 ** threadCount) - 1
-global lowBitMask := (2 ** Ceil(threadCount * 0.5)) - 1
+global lowBitMask := (2 ** Ceil(threadCount * lowBitmaskMultiplier)) - 1
 
 if (instanceFreezing) {
   UnsuspendAll()
@@ -91,8 +92,12 @@ for k, saves_directory in SavesDirectories
 	}
 }
 
-for i, tmppid in PIDs {
+if (affinity) {
+  Logg("Setting high affinity for all instances")
+  for i, tmppid in PIDs {
+    Logg("Setting high affinity for instance " . i)
     SetAffinity(tmppid, highBitMask)
+  }
 }
 
 if (!disableTTS)
@@ -361,11 +366,19 @@ GetAllPIDs()
   }
 }
 
+SetAffinity(pid, mask) {
+  hProc := DllCall("OpenProcess", "UInt", 0x0200, "Int", false, "UInt", pid, "Ptr")
+  DllCall("SetProcessAffinityMask", "Ptr", hProc, "Ptr", mask)
+  DllCall("CloseHandle", "Ptr", hProc)
+  Logg("Set affinity with mask " . mask . " for pid " . pid)
+}
+
 FreeMemory(pid)
 {
   h:=DllCall("OpenProcess", "UInt", 0x001F0FFF, "Int", 0, "Int", pid)
   DllCall("SetProcessWorkingSetSize", "UInt", h, "Int", -1, "Int", -1)
   DllCall("CloseHandle", "Int", h)
+  Logg("freed memory for pid " . pid)
 }
 
 UnsuspendAll() {
@@ -386,6 +399,7 @@ SuspendInstance(pid) {
     DllCall("ntdll.dll\NtSuspendProcess", "Int", hProcess)
     DllCall("CloseHandle", "Int", hProcess)
   }
+  Logg("Suspended instance with pid " . pid)
   if (freeMemory == True)
   {
     FreeMemory(pid)
@@ -404,6 +418,7 @@ ResumeInstance(pid) {
     DllCall("ntdll.dll\NtResumeProcess", "Int", hProcess)
     DllCall("CloseHandle", "Int", hProcess)
   }
+  Logg("Resumed instance with pid " . pid)
 }
 
 IsProcessSuspended(pid) {
@@ -413,16 +428,23 @@ return InStr(title, "Not Responding")
 
 SwitchInstance(idx)
 {
+  Logg("Switching to instance " . idx)
   currInst := idx
   thePID := PIDs[idx]
-  if (instanceFreezing)
-    ResumeInstance(thePID)
-  for i, tmppid in PIDs {
-    if (tmppid != thePID) {
-      SetAffinity(tmppid, lowBitMask)
+  if (affinity) {
+    Logg("Setting low affinity for all instances")
+    for i, tmppid in PIDs {
+      if (tmppid != thePID){
+        Logg("Setting low affinity for instance " . i)
+        SetAffinity(tmppid, lowBitMask)
+      }
     }
   }
-  SetAffinity(thePID, highBitMask)
+  if (instanceFreezing)
+  {
+    Logg("Resuming instance " . idx)
+    ResumeInstance(thePID)
+  }
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
@@ -433,12 +455,12 @@ SwitchInstance(idx)
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
   }
+  ShowF3()
   if (unpauseOnSwitch)
   {
     ControlSend, ahk_parent, {Esc}, ahk_pid %thePID%
     Send, {LButton} ; Make sure the window is activated
   }
-  ShowF3()
 }
 
 ShowF3()
@@ -488,6 +510,13 @@ Reset(state := 0)
   if (resetStates[idx] == 0) ; instance is being played
   {
     resetStates[idx] := 1 ; needs to exit from play
+  }
+  if (affinity) {
+    Logg("Setting high affinity for all instances")
+    for i, tmppid in PIDs {
+      Logg("Setting high affinity for instance " . i)
+      SetAffinity(tmppid, highBitMask)
+    }
   }
   
 }
