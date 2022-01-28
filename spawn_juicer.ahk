@@ -15,6 +15,7 @@ SetTitleMatchMode, 2
 
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
+global freeMemory := True ; free memory of an instance when it suspends
 global unpauseOnSwitch := False
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
@@ -385,7 +386,16 @@ SuspendInstance(pid) {
     DllCall("ntdll.dll\NtSuspendProcess", "Int", hProcess)
     DllCall("CloseHandle", "Int", hProcess)
   }
-  FreeMemory(pid)
+  if (freeMemory == True)
+  {
+    FreeMemory(pid)
+    Logg("Freed memory of instance with pid " . pid)
+  }
+  else
+  {
+    Logg("Did not free memory of instance with pid " . pid)
+  }
+  
 }
 
 ResumeInstance(pid) {
