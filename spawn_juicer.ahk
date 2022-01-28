@@ -16,7 +16,7 @@ SetTitleMatchMode, 2
 ; macro options:
 global instanceFreezing := True ; you probably want to keep this on (true)
 global freeMemory := True ; free memory of an instance when it suspends
-global affinity := True ; 
+global affinity := True ;
 global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
 global unpauseOnSwitch := False
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
@@ -28,6 +28,7 @@ global restartDelay := 200 ; increase if saying missing instanceNumber in .minec
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
+global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -149,9 +150,8 @@ HandlePlayerState()
 	}
 	if (counter > 0)
 	{
-      writeString := readableTime() . ": player given spawn of distance " . minDist . "`n"
-      OutputDebug, [macro] %writeString%
-      FileAppend, %writeString%, macro_logs.txt
+      writeString := "player given spawn of distance " . minDist . "`n"
+      Logg(writeString)
       resetStates[bestSpawn] := 0 ; running
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
@@ -792,7 +792,7 @@ GoodSpawn(n)
   timeString := readableTime()
    xCoord := xCoords[n]
    zCoord := zCoords[n]
-   writeString := timeString . ": Instance " . n . ": Spawn: (" . xCoord . ", " . zCoord . "); Distance: "
+   writeString := "Instance " . n . ": Spawn: (" . xCoord . ", " . zCoord . "); Distance: "
    xDisplacement := xCoord - centerPointX
    zDisplacement := zCoord - centerPointZ
    distance := Sqrt((xDisplacement * xDisplacement) + (zDisplacement * zDisplacement))
@@ -802,41 +802,40 @@ GoodSpawn(n)
    {
       ;OutputDebug, [macro] in whitelist
       writeString := writeString . "GOOD spawn (in whitelist) `n"
-      FileAppend, %writeString%, macro_logs.txt
-      OutputDebug, [macro] %writeString%
+      Logg(writeString)
       return True
    }
    if (inList(xCoord, zCoord, "blacklist.txt"))
    {
       ;OutputDebug, [macro] in blacklist
       writeString := writeString . "BAD spawn (in blacklist) `n"
-      FileAppend, %writeString%, macro_logs.txt
-      OutputDebug, [macro] %writeString%
+      Logg(writeString)
       return False
    }
    if (distance <= radius)
   {
     writeString := writeString . "GOOD spawn (distance less than radius) `n"
-      FileAppend, %writeString%, macro_logs.txt
-      OutputDebug, [macro] %writeString%
+      Logg(writeString)
       return True
     }
    else
   {
     writeString := writeString . "BAD spawn (distance more than radius) `n"
-      FileAppend, %writeString%, macro_logs.txt
-      OutputDebug, [macro] %writeString%
+      Logg(writeString)
       return False
     }
 }
 
 Logg(inString)
 {
-  theTime := readableTime()
-  writeString := "[macro] " . theTime . ": " . inString
-  OutputDebug, %writeString%
-  writeString := theTime . ": " . inString . "`n"
-  FileAppend, %writeString%, macro_logs.txt
+  if (logging)
+  {
+    theTime := readableTime()
+    writeString := "[macro] " . theTime . ": " . inString
+    OutputDebug, %writeString%
+    writeString := theTime . ": " . inString . "`n"
+    FileAppend, %writeString%, macro_logs.txt
+  }
 }
 
 inList(xCoord, zCoord, fileName)
