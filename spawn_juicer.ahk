@@ -401,40 +401,6 @@ IsProcessSuspended(pid) {
 return InStr(title, "Not Responding")
 }
 
-/*
-SwitchInstance(idx)
-{
-  currInst := idx
-  thePID := PIDs[idx]
-  if (instanceFreezing)
-    ResumeInstance(thePID)  
-  for i, tmppid in PIDs {
-        if (tmppid != thePID){
-          SetAffinity(tmppid, lowBitMask)
-        }
-      }
-  SetAffinity(thePID, highBitMask)
-  Unmute(idx)
-  WinSet, AlwaysOnTop, On, ahk_pid %thePID%
-  WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
-  ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
-
-  x := 12 + idx
-  send {F%x% down}
-  sleep, %obsDelay%
-  send {F%x% up}
-  if (fullscreen) {
-    ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
-    sleep, %fullScreenDelay%
-  }
-  if (unpauseOnSwitch)
-  {
-    Send, {LButton} ; Make sure the window is activated
-  }
-  ShowF3()
-}
-*/
-
 SwitchInstance(idx)
 {
   currInst := idx
