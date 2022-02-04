@@ -18,7 +18,7 @@ global unpauseOnSwitch := False ; unpause when switched to instance with ready s
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
-global fullScreenDelay := 270 ; increse if fullscreening issues
+global fullScreenDelay := 270 ; increase if fullscreening issues
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
@@ -69,11 +69,6 @@ if (instanceFreezing) {
 }
 GetAllPIDs()
 SetTitles()
-
-if (instances == 1)
-{
-  obsDelay := 0
-}
 
 tmptitle := ""
 for i, tmppid in PIDs{
@@ -463,10 +458,14 @@ SwitchInstance(idx)
   }
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
-  ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
-  send {Numpad%idx% down}
-  sleep, %obsDelay%
-  send {Numpad%idx% up}
+  if (instances > 1)
+  {
+    Logg("More than 1 instance so switching OBS scenes")
+    ControlSend,, {Numpad%idx%}, ahk_exe obs64.exe
+    send {Numpad%idx% down}
+    sleep, %obsDelay%
+    send {Numpad%idx% up}
+  }
   if (fullscreen) {
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
