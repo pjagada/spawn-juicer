@@ -9,7 +9,7 @@ Reset macro for multi-instance Minecraft Java Edition 1.16+ set seed speedrunnin
 - Any instance not being played or resetted can be suspended automatically to use no processing resources, with the option to free memory.
 - Custom affinity can be set for playing versus background instances for performance.
 - Compatible with Fast Reset mod
-- v1.2 and beyond require [atum] (not legal yet but will be soon)
+- v1.2 and beyond are compatible with and require [atum] (legal as of February 4, 2022)
 - The "goodness" of a spawn is judged off of its distance to a user-defined centerpoint.
 - The player can set their own whitelist and/or blacklist to supplement the centerpoint+radius resetting.
 - Scenes in OBS are automatically switched.
