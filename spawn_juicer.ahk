@@ -1,4 +1,4 @@
-; Multi instance AHK resetting script for set seed
+; Multi and single instance AHK resetting script for set seed
 ; Original author Specnr, modified for set seed by Peej
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
@@ -14,16 +14,11 @@ SetWinDelay, 1
 SetTitleMatchMode, 2
 
 ; macro options:
-global instanceFreezing := True ; you probably want to keep this on (true)
-global freeMemory := True ; free memory of an instance when it suspends
-global affinity := True ;
-global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
-global unpauseOnSwitch := False
+global unpauseOnSwitch := False ; unpause when switched to instance with ready spawn
 global fullscreen := False ; all resets will be windowed, this will automatically fullscreen the instance that's about to be played
 global playSound := False ; will play a windows sound or the sound stored as spawnready.mp3 whenever a spawn is ready
 global disableTTS := False ; this is the "ready" sound that plays when the macro is ready to go
 global fullScreenDelay := 270 ; increse if fullscreening issues
-global obsDelay := 50 ; increase if not changing scenes in obs
 global restartDelay := 200 ; increase if saying missing instanceNumber in .minecraft (and you ran setup)
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
@@ -38,6 +33,12 @@ global radius := 13 ; if this is 10 for example, the autoresetter will not reset
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global giveAngle := False ; Give the angle (TTS) that you need to travel at to get to your starting point
 
+; Multi options (single-instance users ignore these)
+global instanceFreezing := True ; you probably want to keep this on (true)
+global freeMemory := True ; free memory of an instance when it suspends
+global affinity := True ;
+global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
+global obsDelay := 50 ; increase if not changing scenes in obs
 
 
 
@@ -68,6 +69,11 @@ if (instanceFreezing) {
 }
 GetAllPIDs()
 SetTitles()
+
+if (instances == 1)
+{
+  obsDelay := 0
+}
 
 tmptitle := ""
 for i, tmppid in PIDs{
