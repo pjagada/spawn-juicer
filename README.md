@@ -21,7 +21,6 @@ Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed 
 - Option to stop resetting while playing
 
 ### Planned features and fixes
-- Fixing fullscreen
 - Settings reset
 
 ## Setup instructions
