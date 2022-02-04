@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.3
+; v1.4
 
 #NoEnv
 #SingleInstance Force
@@ -186,6 +186,7 @@ HandleResetState(pid, idx) {
     {
       return
     }
+    Logg("Instance " . idx . " exited world so switching to state 4")
   }
   else if (resetStates[idx] == 4) { ; checking if loaded in
     theState := resetStates[idx]
@@ -194,6 +195,7 @@ HandleResetState(pid, idx) {
     if (IsInGame(title))
     {
       ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
+      Logg("Instance " . idx . " loaded in so paused and switching to state 5")
     }
     else
     {
