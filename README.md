@@ -1,6 +1,6 @@
 # Spawn Juicer
 
-Reset macro for multi-instance Minecraft Java Edition 1.16+ set seed speedrunning with automatic spawn resetting
+Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed speedrunning with automatic spawn resetting
 
 ## Features
 
