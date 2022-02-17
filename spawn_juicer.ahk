@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.4
+; v1.5
 
 #NoEnv
 #SingleInstance Force
