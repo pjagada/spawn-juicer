@@ -35,7 +35,7 @@ global giveAngle := False ; Give the angle (TTS) that you need to travel at to g
 
 ; Multi options (single-instance users ignore these)
 global instanceFreezing := True ; you probably want to keep this on (true)
-global freeMemory := True ; free memory of an instance when it suspends
+global freeMemory := False ; free memory of an instance when it suspends (keep this False unless you're low on RAM since it causes lag and slowness)
 global affinity := True ;
 global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
 global obsDelay := 50 ; increase if not changing scenes in obs
