@@ -21,6 +21,7 @@ Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed 
 - Option to stop resetting while playing
 
 ### Planned features and fixes
+- Compatibility with World Preview
 - Fix Hanabi's tab issue
 - Settings reset
 - Maybe make it work for 1.18?
