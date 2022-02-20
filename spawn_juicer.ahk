@@ -277,7 +277,7 @@ HasPreviewStarted(idx) {
   started := False
   Loop, Read, %logFile%
   {
-    if ((numLines - A_Index) < 5) ; this code makes me want to throw up
+    if ((numLines - A_Index) < 5) 
     {
       if (InStr(A_LoopReadLine, "Starting Preview at")) {
         started := True
