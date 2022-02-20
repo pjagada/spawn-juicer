@@ -126,7 +126,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 7)
+      if (state >= 8)
       {
         instancesWithGoodSpawns.Push(r)
         Logg("Instance " . r . " has a good spawn so adding it to instancesWithGoodSpawns")
@@ -193,10 +193,9 @@ HandleResetState(pid, idx) {
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
     WinGetTitle, title, ahk_pid %pid%
-    if (IsInGame(title))
+    if (IsInGame(title) || HasPreviewStarted(idx))
     {
-      ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-      Logg("Instance " . idx . " loaded in so paused and switching to state 5")
+      Logg("Instance " . idx . " loaded in so switching to state 5")
     }
     else
     {
@@ -215,11 +214,13 @@ HandleResetState(pid, idx) {
     Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
       Logg("Instance " . idx . " has a good spawn so switching to state 7")
+      ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
       resetStates[idx] := 7 ; good spawn unfrozen
     }
     else
     {
       Logg("Instance " . idx . " has a bad spawn so switching to state 2")
+      ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
       resetStates[idx] := 2 ; need to exit world
     }
     return
@@ -228,7 +229,8 @@ HandleResetState(pid, idx) {
   {
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
-    if (playerState == 0) ; needs spawn so this instance about to be used
+    WinGetTitle, title, ahk_pid %pid%
+    if (!(IsInGame(title))) ; wait until preview is done
     {
       return
     }
@@ -236,12 +238,16 @@ HandleResetState(pid, idx) {
     {
       return
     }
+    ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
     startTimes[idx] := A_TickCount
   }
   else if (resetStates[idx] == 8) ; good spawn waiting for freeze delay to finish then freezing
   {
     theState := resetStates[idx]
-    Logg("Instance " . idx . " in state " . theState)
+    if (playerState == 0) ; needs spawn so this instance about to be used
+    {
+      return
+    }
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
       return
@@ -259,6 +265,27 @@ HandleResetState(pid, idx) {
     ExitApp
   }
   resetStates[idx] += 1 ; Progress State
+}
+
+HasPreviewStarted(idx) {
+  logFile := SavesDirectories[idx] . "logs\latest.log"
+  numLines := 0
+  Loop, Read, %logFile%
+  {
+    numLines += 1
+  }
+  started := False
+  Loop, Read, %logFile%
+  {
+    if ((numLines - A_Index) < 5) ; this code makes me want to throw up
+    {
+      if (InStr(A_LoopReadLine, "Starting Preview at")) {
+        started := True
+        break
+      }
+    }
+  }
+  return started
 }
 
 HasGameSaved(idx) {
@@ -872,7 +899,7 @@ GetSpawn(i)
   logFile := StrReplace(savesDirectories[i], "saves", "logs\latest.log") . "logs\latest.log"
   Loop, Read, %logFile%
   {
-    if (InStr(A_LoopReadLine, "logged in with entity id"))
+    if (InStr(A_LoopReadLine, "logged in with entity id") || InStr(A_LoopReadLine, "Starting Preview"))
     {
       spawnLine := A_LoopReadLine
     }
