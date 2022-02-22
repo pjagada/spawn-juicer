@@ -60,6 +60,8 @@ End: open to LAN and put dragon in perch approach
 
 ## Credits
 
+Char - World Preview support
+
 Specnr - original creator of this macro
 
 jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting
