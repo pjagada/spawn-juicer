@@ -23,6 +23,7 @@ global restartDelay := 200 ; increase if saying missing instanceNumber in .minec
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
+global muteResets := True ; mute resetting sounds
 global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
 ; Autoresetter Options:
@@ -126,7 +127,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 7)
+      if (state >= 8)
       {
         instancesWithGoodSpawns.Push(r)
         Logg("Instance " . r . " has a good spawn so adding it to instancesWithGoodSpawns")
@@ -177,6 +178,7 @@ HandleResetState(pid, idx) {
   {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
+    Mute(idx)
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
   }
   else if (resetStates[idx] == 3) ; waiting to enter time between worlds
@@ -193,10 +195,9 @@ HandleResetState(pid, idx) {
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
     WinGetTitle, title, ahk_pid %pid%
-    if (IsInGame(title))
+    if (IsInGame(title) || HasPreviewStarted(idx))
     {
-      ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-      Logg("Instance " . idx . " loaded in so paused and switching to state 5")
+      Logg("Instance " . idx . " loaded in so switching to state 5")
     }
     else
     {
@@ -215,11 +216,13 @@ HandleResetState(pid, idx) {
     Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
       Logg("Instance " . idx . " has a good spawn so switching to state 7")
+      ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
       resetStates[idx] := 7 ; good spawn unfrozen
     }
     else
     {
       Logg("Instance " . idx . " has a bad spawn so switching to state 2")
+      ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
       resetStates[idx] := 2 ; need to exit world
     }
     return
@@ -228,7 +231,8 @@ HandleResetState(pid, idx) {
   {
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
-    if (playerState == 0) ; needs spawn so this instance about to be used
+    WinGetTitle, title, ahk_pid %pid%
+    if (!(IsInGame(title))) ; wait until preview is done
     {
       return
     }
@@ -236,12 +240,16 @@ HandleResetState(pid, idx) {
     {
       return
     }
+    ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
     startTimes[idx] := A_TickCount
   }
   else if (resetStates[idx] == 8) ; good spawn waiting for freeze delay to finish then freezing
   {
     theState := resetStates[idx]
-    Logg("Instance " . idx . " in state " . theState)
+    if (playerState == 0) ; needs spawn so this instance about to be used
+    {
+      return
+    }
     if ((A_TickCount - startTimes[idx] < beforeFreezeDelay))
     {
       return
@@ -259,6 +267,27 @@ HandleResetState(pid, idx) {
     ExitApp
   }
   resetStates[idx] += 1 ; Progress State
+}
+
+HasPreviewStarted(idx) {
+  logFile := SavesDirectories[idx] . "logs\latest.log"
+  numLines := 0
+  Loop, Read, %logFile%
+  {
+    numLines += 1
+  }
+  started := False
+  Loop, Read, %logFile%
+  {
+    if ((numLines - A_Index) < 5) 
+    {
+      if (InStr(A_LoopReadLine, "Starting Preview at")) {
+        started := True
+        break
+      }
+    }
+  }
+  return started
 }
 
 HasGameSaved(idx) {
@@ -308,6 +337,44 @@ RunHide(Command)
   DllCall("FreeConsole")
   Process, Close, %cPid%
 Return Result
+}
+
+Mute(n)
+{
+  if (muteResets == False)
+    return
+  thePID := PIDs[n]
+  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Mute ""{1}"""
+  command := Format(preString, thePID)
+  ;MsgBox, %command%
+  rawOut := RunHide(command)
+}
+
+Unmute(n)
+{
+  if (muteResets == False)
+    return
+  thePID := PIDs[n]
+  preString := StrReplace(A_WorkingDir, "\", "/") . "/SoundVolumeView.exe /Unmute ""{1}"""
+  command := Format(preString, thePID)
+  ;MsgBox, %command%
+  rawOut := RunHide(command)
+}
+
+MuteAll()
+{
+  for n, thePID in PIDs
+  {
+    Mute(n)
+  }
+}
+
+UnmuteAll()
+{
+  for n, thePID in PIDs
+  {
+   Unmute(n)
+  }
 }
 
 GetSavesDir(pid)
@@ -456,6 +523,7 @@ SwitchInstance(idx)
     Logg("Setting high affinity for instance " . idx . " since we're switching to it")
     SetAffinity(thePID, highBitMask)
   }
+  Unmute(idx)
   WinSet, AlwaysOnTop, On, ahk_pid %thePID%
   WinSet, AlwaysOnTop, Off, ahk_pid %thePID%
   if (instances > 1)
@@ -872,7 +940,7 @@ GetSpawn(i)
   logFile := StrReplace(savesDirectories[i], "saves", "logs\latest.log") . "logs\latest.log"
   Loop, Read, %logFile%
   {
-    if (InStr(A_LoopReadLine, "logged in with entity id"))
+    if (InStr(A_LoopReadLine, "logged in with entity id") || InStr(A_LoopReadLine, "Starting Preview"))
     {
       spawnLine := A_LoopReadLine
     }
@@ -930,6 +998,7 @@ AddToBlacklist()
 	return
 
     F5:: ; Reload if macro locks up
+      UnmuteAll()
       UnsuspendAll()
       Reload
    return 
@@ -944,6 +1013,7 @@ AddToBlacklist()
 }
 
 ^End:: ; Safely close the script
+  UnmuteAll()
   UnsuspendAll()
   if (affinity) {
     Logg("Setting high affinity for all instances since ending script")
