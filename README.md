@@ -9,6 +9,7 @@ Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed 
 - Any instance not being played or resetted can be suspended automatically to use no processing resources, with the option to free memory.
 - Custom affinity can be set for playing versus background instances for performance.
 - Compatible with Fast Reset mod
+- Compatible with WorldPreview mod
 - v1.2 and beyond are compatible with and require [atum] (legal as of February 4, 2022)
 - The "goodness" of a spawn is judged off of its distance to a user-defined centerpoint.
 - The player can set their own whitelist and/or blacklist to supplement the centerpoint+radius resetting.
@@ -21,8 +22,6 @@ Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed 
 - Option to stop resetting while playing
 
 ### Planned features and fixes
-- Compatibility with World Preview
-- Fix Hanabi's tab issue
 - Settings reset
 - Maybe make it work for 1.18?
 
@@ -60,7 +59,7 @@ End: open to LAN and put dragon in perch approach
 
 ## Credits
 
-Char - World Preview support
+Char - WorldPreview support
 
 Specnr - original creator of this macro
 
@@ -70,7 +69,7 @@ EvanKae - affinity help
 
 MagneticMaybe, Rayoh, HanabiYaki - early testing
 
-Void_X_Walker - atum mod
+Void_X_Walker - atum and WorldPreview mods
 
   [latest release]: <https://github.com/pjagada/spawn-juicer/releases/latest>
   [the setup video]: <https://youtu.be/0xAHMW93MQw>
