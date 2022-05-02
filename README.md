@@ -37,6 +37,9 @@ When starting up the macro, make sure that all instances are either on the title
 - [My blacklist] (for 1.17 ssg gravel seed)
 - [LeonToast's blacklist] (for 1.17 ssg gravel seed but stricter)
 
+### Muting resets
+If the WorldPreview reset sounds are annoying, use [this resource pack].
+
 ## List of hotkeys
 
 Ctrl + End: unmute and unsuspend all instances and close the script
@@ -76,3 +79,4 @@ Void_X_Walker - atum and WorldPreview mods
   [My blacklist]: <https://cdn.discordapp.com/attachments/846477312438566934/919571471737704508/blacklist.txt>
   [LeonToast's blacklist]: <https://cdn.discordapp.com/attachments/854508085422325770/859798746098696222/blacklist.txt>
   [atum]: <https://github.com/VoidXWalker/atum/releases/latest>
+  [this resource pack]: <https://cdn.discordapp.com/attachments/755882336209338388/970560304763273297/mutesounds.zip>
