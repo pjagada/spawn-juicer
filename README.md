@@ -58,7 +58,9 @@ Delete: open to LAN and give netherite sword with sharpness
 
 End: open to LAN and put dragon in perch approach
 
-## FAQ
+## Help
+
+Ask in [#public-help] in the [SSG Discord] if you have any questions about anything.
 
 ## Credits
 
@@ -80,3 +82,5 @@ Void_X_Walker - atum and WorldPreview mods
   [LeonToast's blacklist]: <https://cdn.discordapp.com/attachments/854508085422325770/859798746098696222/blacklist.txt>
   [atum]: <https://github.com/VoidXWalker/atum/releases/latest>
   [this resource pack]: <https://cdn.discordapp.com/attachments/755882336209338388/970560304763273297/mutesounds.zip>
+  [#public-help]: <https://discord.com/channels/755878212571103392/861679137805434930>
+  [SSG Discord]: <https://discord.gg/EFvygzt>
