@@ -23,7 +23,7 @@ global restartDelay := 200 ; increase if saying missing instanceNumber in .minec
 global maxLoops := 20 ; increase if macro regularly locks
 global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start of a run (for verification purposes). Make this -1 if you don't want it to show f3. Remember that one frame at 60 fps is 17 milliseconds, and one frame at 30 fps is 33 milliseconds. You'll probably want to show this for 2 or 3 frames to be safe.
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
-global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
+global logging = True ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -87,8 +87,8 @@ global version = getVersion()
 
 for k, saves_directory in SavesDirectories
 {
-    ;OutputDebug, [macro] k is %k% saves_directory is %saves_directory%
-	if (PauseOnLostFocus(saves_directory))
+
+	if (PauseOnLostFocus(k))
 	{
 		MsgBox, Instance %k% has pause on lost focus enabled. Disable this feature by pressing F3 + P in-game, then start the script again.
 		ExitApp
@@ -734,27 +734,39 @@ Test()
   MsgBox, %two%
 }
 
+readLine(option, idx)
+{
+  savesDirectory := SavesDirectories[idx]
+  optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
+  Logg("Looking for option " . option . " in " . optionsFile)
+  Loop, read, %optionsFile%
+  {
+    if InStr(A_LoopReadLine, option)
+    {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, ":")
+      value := arr[2]
+      Logg("value is " . value)
+      return value
+    }
+  }
+  MsgBox, Could not find option in options.txt
+  ExitApp
+}
+
 
 getVersion()
 {
-  savesDirectory := SavesDirectories[1]
-   optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
-   FileReadLine, versionLine, %optionsFile%, 1
-   arr := StrSplit(versionLine, ":")
-   dataVersion := arr[2]
+   dataVersion := readLine("version", 1)
    if (dataVersion > 2600)
       return (17)
    else
       return (16)
 }
 
-PauseOnLostFocus(savesDirectory) ;used on script startup
+PauseOnLostFocus(idx) ;used on script startup
 {
-   optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
-   if (version = 16)
-      FileReadLine, optionLine, %optionsFile%, 45
-   else
-      FileReadLine, optionLine, %optionsFile%, 48
+   optionLine := readLine("pauseOnLostFocus", idx)
    if (InStr(optionLine, "true"))
       return 1
    else
@@ -763,9 +775,7 @@ PauseOnLostFocus(savesDirectory) ;used on script startup
 
 inFullscreen(idx)
 {
-  savesDirectory := SavesDirectories[idx]
-   optionsFile := StrReplace(savesDirectory, "saves", "options.txt") . "options.txt"
-   FileReadLine, fullscreenLine, %optionsFile%, 17
+  fullscreenLine := readLine("fullscreen", idx)
    if (InStr(fullscreenLine, "true"))
       return 1
    else
