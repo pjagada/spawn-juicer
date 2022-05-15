@@ -701,48 +701,6 @@ WaitForHost(savesDirectory)
    }
 }
 
-inWorld(idx)
-{
-  mcDirectory := SavesDirectories[idx]
-  lastWorld := getMostRecentFile(mcDirectory)
-  lockFile := lastWorld . "\session.lock"
-  FileRead, sessionlockfile, %lockFile%
-  if (ErrorLevel = 0)
-  {
-    return false
-  }
-  return true
-}
-
-getMostRecentFile(mcDirectory)
-{
-  savesDirectory := mcDirectory . "saves"
-  ;MsgBox, %savesDirectory%
-	counter := 0
-	Loop, Files, %savesDirectory%\*.*, D
-	{
-		counter += 1
-		if (counter = 1)
-		{
-			maxTime := A_LoopFileTimeModified
-			mostRecentFile := A_LoopFileLongPath
-		}
-		if (A_LoopFileTimeModified >= maxTime)
-		{
-			maxTime := A_LoopFileTimeModified
-			mostRecentFile := A_LoopFileLongPath
-		}
-	}
-   recentFile := mostRecentFile
-   return (recentFile)
-}
-
-Test()
-{
-  two := inWorld(1)
-  MsgBox, %two%
-}
-
 readLine(option, idx)
 {
   savesDirectory := SavesDirectories[idx]
