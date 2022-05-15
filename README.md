@@ -25,6 +25,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - Practice mode (go to instance 1 title screen)
 - Initialize all instances' seeds
 - Toggle all instances' sprint, hitboxes
+- fix blacklisting issue
 
 ## Setup instructions
 
