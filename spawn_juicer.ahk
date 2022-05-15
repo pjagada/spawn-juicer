@@ -87,7 +87,11 @@ global version = getVersion()
 
 for k, saves_directory in SavesDirectories
 {
-
+    if (!(modExist("atum", k)))
+    {
+      MsgBox, Instance %k% does not have atum installed. Install atum in all your instances, restart them, then start the script again.
+      ExitApp
+    }
 	if (PauseOnLostFocus(k))
 	{
 		MsgBox, Instance %k% has pause on lost focus enabled. Disable this feature by pressing F3 + P in-game, then start the script again.
@@ -597,11 +601,12 @@ GiveSword()
 
 OpenToLAN()
 {
-  savesDirectory := SavesDirectories[GetActiveInstanceNum()]
-  thePID := PIDs[GetActiveInstanceNum()]
+  idx := GetActiveInstanceNum()
+  savesDirectory := SavesDirectories[idx]
+  thePID := PIDs[idx]
    Send, {Esc} ; pause
    ShiftTab(thePID, 2)
-   if (fastResetModExist(savesDirectory))
+   if (modExist("fast-reset", idx))
   {
     ShiftTab(thePID)
   }
@@ -640,18 +645,22 @@ ShiftTab(thePID, n := 1)
    }
 }
 
-fastResetModExist(savesDirectory)
+modExist(mod, idx)
 {
-   modsFolder := StrReplace(savesDirectory, "saves", "mods") . "mods"
-   ;MsgBox, %modsFolder%
+  savesDirectory := SavesDirectories[idx]
+  modsFolder := StrReplace(savesDirectory, "saves", "mods") . "mods"
+  Logg("Checking mods in " . modsFolder)
    Loop, Files, %modsFolder%\*.*, F
    {
-    ;MsgBox, %A_LoopFileName%
-      if(InStr(A_LoopFileName, "fast-reset"))
+    Logg("checking mod " . A_LoopFileName)
+      if(InStr(A_LoopFileName, mod) && (!(InStr(A_LoopFileName, "disabled"))))
       {
-         return True
+        Logg("found the mod " . mod)
+         return true
       }
    }
+   Logg("did not find the mod " . mod)
+  return false
 }
 
 WaitForHost(savesDirectory)
