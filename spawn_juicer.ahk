@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.6
+; v1.7
 
 #NoEnv
 #SingleInstance Force
@@ -39,7 +39,7 @@ global freeMemory := False ; free memory of an instance when it suspends (keep t
 global affinity := True ;
 global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
 global obsDelay := 50 ; increase if not changing scenes in obs
-
+global wallSwitch := False ; switch to an alternate scene (set OBS hotkey to F12) when all instances are resetting
 
 
 ; Don't configure these, scroll to the very bottom to configure hotkeys
@@ -277,7 +277,7 @@ HasPreviewStarted(idx) {
   started := False
   Loop, Read, %logFile%
   {
-    if ((numLines - A_Index) < 5) 
+    if ((numLines - A_Index) < 5)
     {
       if (InStr(A_LoopReadLine, "Starting Preview at")) {
         started := True
@@ -442,7 +442,7 @@ SuspendInstance(pid) {
   {
     Logg("Did not free memory of instance with pid " . pid)
   }
-  
+
 }
 
 ResumeInstance(pid) {
@@ -548,6 +548,14 @@ Reset(state := 0)
     send, {F11}
     sleep, %fullScreenDelay%
   }
+  if (wallSwitch)
+  {
+    Logg("More than 1 instance so switching to wall scene")
+    ControlSend,, {F12}, ahk_exe obs64.exe
+    send {F12 down}
+    sleep, %obsDelay%
+    send {F12 up}
+  }
   playerState := state ; needs spawn or keep resetting
   if (resetStates[idx] == 0) ; instance is being played
   {
@@ -560,7 +568,7 @@ Reset(state := 0)
       SetAffinity(tmppid, highBitMask)
     }
   }
-  
+
 }
 
 SetTitles() {
@@ -947,11 +955,11 @@ AddToBlacklist()
   RAlt::  ; Pause all macros
     Suspend
   return
-  
+
     PgDn:: ; Reset and give spawn
       Reset(0)
     return
-    
+
     End:: ; Perch
 		Perch()
 	return
@@ -959,12 +967,12 @@ AddToBlacklist()
     F5:: ; Reload if macro locks up
       UnsuspendAll()
       Reload
-   return 
-   
+   return
+
    ^B:: ; Add a spawn to the blacklisted spawns.
 		AddToBlacklist()
 	return
-   
+
   Delete:: ; kill villager
     GiveSword()
   return
