@@ -1,6 +1,6 @@
 # Spawn Juicer
 
-Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed speedrunning with automatic spawn resetting
+Reset macro for single and multi-instance Minecraft Java Edition set seed speedrunning with automatic spawn resetting
 
 ## Features
 
@@ -19,16 +19,12 @@ Reset macro for single and multi-instance Minecraft Java Edition 1.16+ set seed 
 - Move speedrun worlds into an oldWorlds folder
 - Show F3 automatically at run start
 - Give angle to initial destination through TTS at run start
-- Option to stop resetting while playing
 
 ### Planned features and fixes
 - Settings reset
-- Go to wall scene when all instances are resetting
-- Check for Atum
 - Practice mode (go to instance 1 title screen)
 - Initialize all instances' seeds
 - Toggle all instances' sprint, hitboxes
-- Make it work for more versions (1.16.5, 1.18.1, 1.18.2)
 
 ## Setup instructions
 
