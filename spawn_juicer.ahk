@@ -767,7 +767,7 @@ readLine(option, idx)
 getVersion()
 {
    dataVersion := readLine("version", 1)
-   if (dataVersion > 2600)
+   if (dataVersion > 2600 && dataVersion < 2800)
       return (17)
    else
       return (16)
