@@ -26,6 +26,8 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - Initialize all instances' seeds
 - Toggle all instances' sprint, hitboxes
 - fix blacklisting issue
+- fix wall scene issue
+- Krypton checker
 
 ## Setup instructions
 
@@ -60,7 +62,13 @@ Delete: open to LAN and give netherite sword with sharpness
 
 End: open to LAN and put dragon in perch approach
 
-## Help
+## Troubleshooting
+
+If you're having issues, make sure:
+- you are using the [latest version]
+- you do not have Krypton in any of your instances (can mess with log reading and cause random issues)
+
+### Further help
 
 Ask in [#public-help] in the [SSG Discord] if you have any questions about anything.
 
@@ -79,6 +87,7 @@ MagneticMaybe, Rayoh, HanabiYaki - early testing
 Void_X_Walker - atum and WorldPreview mods
 
   [latest release]: <https://github.com/pjagada/spawn-juicer/releases/latest>
+  [latest version]: <https://github.com/pjagada/spawn-juicer/releases/latest>
   [the setup video]: <https://youtu.be/0xAHMW93MQw>
   [My blacklist]: <https://cdn.discordapp.com/attachments/846477312438566934/919571471737704508/blacklist.txt>
   [LeonToast's blacklist]: <https://cdn.discordapp.com/attachments/854508085422325770/859798746098696222/blacklist.txt>
