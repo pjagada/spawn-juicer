@@ -38,7 +38,30 @@ for k, saves_directory in SavesDirectories
 		change_seed(k)
 	}
 }
-ComObjCreate("SAPI.SpVoice").Speak("Done")
+
+Sleep, 100
+
+for n, saves_directory in SavesDirectories
+{
+	check_atum(k)
+	if (seed_check(k))
+	{
+		check_title_screen(k)
+		change_seed(k)
+	}
+}
+
+Sleep, 100
+
+for m, saves_directory in SavesDirectories
+{
+  if (seed_check(k))
+  {
+    MsgBox, Seed still seems to be wrong in 1 or more instances so try running script again, doing it a few times can help until you hear "Success." If you run it a bunch and it's still not working, just do it manually.
+    ExitApp
+  }
+}
+ComObjCreate("SAPI.SpVoice").Speak("Success")
 
 check_atum(k)
 {
