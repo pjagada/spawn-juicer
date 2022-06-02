@@ -39,7 +39,7 @@ for k, saves_directory in SavesDirectories
 	}
 }
 
-Sleep, 100
+Sleep, 200
 
 for n, saves_directory in SavesDirectories
 {
@@ -51,7 +51,7 @@ for n, saves_directory in SavesDirectories
 	}
 }
 
-Sleep, 100
+Sleep, 200
 
 for m, saves_directory in SavesDirectories
 {
@@ -93,7 +93,9 @@ change_seed(k)
 	ShiftTab(thePID)
 	ShiftEnter(thePID)
 	CtrlA(thePID)
+  Sleep, 10
 	ControlSend, ahk_parent, {Backspace}, ahk_pid %thePID%
+  Sleep, 10
 	ControlSend, ahk_parent, %SEED%, ahk_pid %thePID%
 	Sleep, 10
 	ControlSend, ahk_parent, {Tab}{Tab}{Enter}, ahk_pid %thePID%
