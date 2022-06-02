@@ -3,7 +3,7 @@
 
 ; Instructions: https://github.com/pjagada/spawn-juicer#readme
 
-; v1.7
+; v1.8
 
 #NoEnv
 #SingleInstance Force
@@ -46,6 +46,7 @@ global wallSwitch := False ; switch to an alternate scene (set OBS hotkey to F12
 ; Don't configure these, scroll to the very bottom to configure hotkeys
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
 global currInst := -1
+global currScene := -1
 global pauseAuto := False
 global SavesDirectories := []
 global instances := 0
@@ -160,9 +161,9 @@ HandlePlayerState()
         minDist := distances[q]
 		bestSpawn := q
       }
-	}
-	if (counter > 0)
-	{
+	  }
+	  if (counter > 0)
+	  {
       writeString := "player given spawn of distance " . minDist . "`n"
       Logg(writeString)
       resetStates[bestSpawn] := 0 ; running
@@ -171,6 +172,17 @@ HandlePlayerState()
       playerState := 1 ; running
       ;if (stopResetsWhilePlaying)
       ;  playerState := 2 ; running and stop background resetting
+    }
+    else
+    {
+      if ((currScene != 0) && wallSwitch) {
+        Logg("switching to wall scene since current scene is " . currScene)
+        ControlSend,, {F12}, ahk_exe obs64.exe
+        send {F12 down}
+        sleep, %obsDelay%
+        send {F12 up}
+        currScene := 0
+      }
     }
   }
 }
@@ -504,6 +516,7 @@ SwitchInstance(idx)
     send {Numpad%idx% down}
     sleep, %obsDelay%
     send {Numpad%idx% up}
+    currScene := idx
   }
   if (fullscreen) {
     ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
@@ -559,14 +572,6 @@ Reset(state := 0)
   if (inFullscreen(idx)) {
     send, {F11}
     sleep, %fullScreenDelay%
-  }
-  if (wallSwitch)
-  {
-    Logg("More than 1 instance so switching to wall scene")
-    ControlSend,, {F12}, ahk_exe obs64.exe
-    send {F12 down}
-    sleep, %obsDelay%
-    send {F12 up}
   }
   playerState := state ; needs spawn or keep resetting
   if (resetStates[idx] == 0) ; instance is being played
