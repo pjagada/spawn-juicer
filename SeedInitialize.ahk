@@ -39,23 +39,23 @@ for k, saves_directory in SavesDirectories
 	}
 }
 
-Sleep, 200
+Sleep, 100
 
 for n, saves_directory in SavesDirectories
 {
-	check_atum(k)
-	if (seed_check(k))
+	check_atum(n)
+	if (seed_check(n))
 	{
-		check_title_screen(k)
-		change_seed(k)
+		check_title_screen(n)
+		change_seed(n)
 	}
 }
 
-Sleep, 200
+Sleep, 100
 
 for m, saves_directory in SavesDirectories
 {
-  if (seed_check(k))
+  if (seed_check(m))
   {
     MsgBox, Seed still seems to be wrong in 1 or more instances so try running script again, doing it a few times can help until you hear "Success." If you run it a bunch and it's still not working, just do it manually.
     ExitApp
@@ -63,18 +63,18 @@ for m, saves_directory in SavesDirectories
 }
 ComObjCreate("SAPI.SpVoice").Speak("Success")
 
-check_atum(k)
+check_atum(idx)
 {
-	if (!(modExist("atum", k)))
+	if (!(modExist("atum", idx)))
     {
-      MsgBox, Instance %k% does not have atum installed. Install atum in all your instances, restart them, then start the script again.
+      MsgBox, Instance %idx% does not have atum installed. Install atum in all your instances, restart them, then start the script again.
       ExitApp
     }
 }
 
-seed_check(k)
+seed_check(idx)
 {
-	mcDir := SavesDirectories[k]
+	mcDir := SavesDirectories[idx]
 	seedFile := mcDir . "seed.txt"
 	Logg("seed file is " . seedFile)
 	FileReadLine, readSeed, %seedFile%, 1
@@ -86,10 +86,10 @@ seed_check(k)
 	return (readSeed != SEED)
 }
 
-change_seed(k)
+change_seed(idx)
 {
-	Logg("changing seed of instance " . k)
-	thePID := PIDs[k]
+	Logg("changing seed of instance " . idx)
+	thePID := PIDs[idx]
 	ShiftTab(thePID)
 	ShiftEnter(thePID)
 	CtrlA(thePID)
@@ -189,9 +189,9 @@ GetAllPIDs()
   }
 }
 
-DebugHead(n)
+DebugHead(idx)
 {
-  writeString := "[macro] " . readableTime() . ": Instance " . n . ": "
+  writeString := "[macro] " . readableTime() . ": Instance " . idx . ": "
   return writeString
 }
 
