@@ -915,15 +915,17 @@ AlertUser(n)
 
 AddToBlacklist()
 {
-	t := GetActiveInstanceNum()
+	t := currInst
    xCoord := xCoords[t]
    zCoord := zCoords[t]
-   OutputDebug, [macro] blacklisting %xCoord%, %zCoord%
    theString := xCoord . "," . zCoord . ";" . xCoord . "," . zCoord
    if (!FileExist("blacklist.txt"))
       FileAppend, %theString%, blacklist.txt
    else
       FileAppend, `n%theString%, blacklist.txt
+  speakString := "blacklisted instance " . t . "spawn of x " . xCoord . " z " . zCoord
+  Logg(speakString)
+  ComObjCreate("SAPI.SpVoice").Speak(speakString)
 }
 
 
@@ -946,7 +948,7 @@ AddToBlacklist()
       Reload
    return
 
-   ^B:: ; Add a spawn to the blacklisted spawns.
+   ^B:: ; Add a spawn (the one that the macro most recently gave you) to the blacklisted spawns.
 		AddToBlacklist()
 	return
 

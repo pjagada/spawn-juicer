@@ -56,7 +56,7 @@ Page Down: Give good spawn
 
 F5: unmute and unsuspend all instances and reload the script
 
-Ctrl + B: add the most recent spawn to the blacklist
+Ctrl + B: add the most recently given spawn to the blacklist
 
 Delete: open to LAN and give netherite sword with sharpness
 
