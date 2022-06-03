@@ -25,6 +25,7 @@ global f3showDuration = 100 ; how many milliseconds f3 is shown for at the start
 global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If f3 isn't being shown, this is all probably happening during the joining world screen, so increase this number.
 global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 global kryptonChecker := True ; change this to False if you want to use Krypton (highly recommend not using Krypton as it will usually break the macro)
+global coop := False ; will automatically open to LAN and prepare "/time set 0" (without sending command) when you join a world
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -523,7 +524,10 @@ SwitchInstance(idx)
     sleep, %fullScreenDelay%
   }
   ShowF3()
-  if (unpauseOnSwitch)
+  if (coop) {
+    Coop(idx)
+  }
+  else if (unpauseOnSwitch)
   {
     ControlSend, ahk_parent, {Esc}, ahk_pid %thePID%
     Send, {LButton} ; Make sure the window is activated
@@ -612,6 +616,20 @@ GiveSword()
    Send, {enter}
 }
 
+Coop(idx)
+{
+  Logg("doing co-op stuff for instance " . idx)
+  PausedOpenToLAN(idx)
+  Send, /
+  Sleep, 70
+  thePID := PIDs[idx]
+  if WinActive("ahk_pid" thePID) {
+    SendInput, time set 0
+  } else {
+    ControlSend, ahk_parent, time set 0, ahk_pid %thePID%
+  }
+}
+
 OpenToLAN()
 {
   idx := GetActiveInstanceNum()
@@ -635,6 +653,29 @@ OpenToLAN()
    }
    Send, `t
    Send, {enter} ; open to LAN
+   WaitForHost(savesDirectory)
+}
+
+PausedOpenToLAN(idx)
+{
+  savesDirectory := SavesDirectories[idx]
+  thePID := PIDs[idx]
+   ShiftTab(thePID, 2)
+   if (modExist("fast-reset", idx))
+  {
+    ShiftTab(thePID)
+  }
+   ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID% ; open to LAN
+   if (version = 17)
+   {
+      ControlSend, ahk_parent, {Blind}{tab 2}{enter}, ahk_pid %thePID% ; cheats on
+   }
+   else
+   {
+      ShiftTab(thePID)
+      ControlSend, ahk_parent, {Blind}{enter}, ahk_pid %thePID% ; cheats on
+   }
+   ControlSend, ahk_parent, {Blind}{tab}{enter}, ahk_pid %thePID% ; open to LAN
    WaitForHost(savesDirectory)
 }
 
