@@ -1,6 +1,6 @@
 #NoEnv
 #SingleInstance Force
-#Warn
+;#Warn
 
 SetKeyDelay, 0
 SetWinDelay, 1
