@@ -31,7 +31,7 @@ global coop := False ; will automatically open to LAN and prepare "/time set 0" 
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
 global centerPointX := 162.7 ; this is the x coordinate of that certain point (by default it's the x coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global centerPointZ := 194.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
-global radius := 13 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global radius := 10 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global giveAngle := False ; Give the angle (TTS) that you need to travel at to get to your starting point
 
@@ -41,7 +41,7 @@ global freeMemory := False ; free memory of an instance when it suspends (keep t
 global affinity := True ;
 global lowBitmaskMultiplier := 0.3 ; for affinity, find a happy medium, max=1.0; lower means more threads to the main instance and less to the background instances, higher means more threads to background instances and less to main instance
 global obsDelay := 50 ; increase if not changing scenes in obs
-global wallSwitch := False ; switch to an alternate scene (set OBS hotkey to F12) when all instances are resetting
+global wallSwitch := True ; switch to an alternate scene (set OBS hotkey to F12) when all instances are resetting
 
 
 ; Don't configure these, scroll to the very bottom to configure hotkeys
@@ -620,9 +620,9 @@ Coop(idx)
 {
   Logg("doing co-op stuff for instance " . idx)
   PausedOpenToLAN(idx)
-  Send, /
-  Sleep, 70
   thePID := PIDs[idx]
+  ControlSend, ahk_parent, /, ahk_pid %thePID%
+  Sleep, 70
   if WinActive("ahk_pid" thePID) {
     SendInput, time set 0
   } else {
@@ -720,6 +720,7 @@ modExist(mod, idx)
 WaitForHost(savesDirectory)
 {
    logFile := StrReplace(savesDirectory, "saves", "logs\latest.log") . "logs\latest.log"
+   Logg("waiting for host in " . logFile)
    numLines := 0
    Loop, Read, %logFile%
    {
@@ -732,14 +733,14 @@ WaitForHost(savesDirectory)
       OutputDebug, reading log file
       if ((A_TickCount - startTime) > 3000)
       {
-         OutputDebug, open to lan timed out
+         Logg("open to lan timed out")
          openedToLAN := True
       }
       Loop, Read, %logFile%
       {
          if ((A_TickCount - startTime) > 3000)
          {
-            OutputDebug, open to lan timed out
+            Logg("open to lan timed out")
             openedToLAN := True
          }
          if ((numLines - A_Index) < 2)
@@ -747,7 +748,7 @@ WaitForHost(savesDirectory)
             OutputDebug, %A_LoopReadLine%
             if (InStr(A_LoopReadLine, "[CHAT] Local game hosted on port"))
             {
-               OutputDebug, found the [CHAT] Local game hosted on port
+               Logg("found the [CHAT] Local game hosted on port")
                openedToLAN := True
             }
          }
