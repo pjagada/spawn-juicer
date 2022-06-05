@@ -1,6 +1,6 @@
 #NoEnv
 #SingleInstance Force
-;#Warn
+#Warn
 
 SetKeyDelay, 0
 SetWinDelay, 1
@@ -10,7 +10,7 @@ SetTitleMatchMode, 2
 global toggleSprint := True ; will not do anything if hold sprint is used, otherwise it will toggle your sprint
 global sprintButton := "CapsLock" ; list of keys here: https://www.autohotkey.com/docs/KeyList.htm
 global hitboxes := True ; will toggle hitboxes
-global logging = True ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
+global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
 ; Don't configure these, scroll to the very bottom to configure hotkeys
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
@@ -38,6 +38,15 @@ for i, tmppid in PIDs{
   WinSet, AlwaysOnTop, Off, ahk_pid %tmppid%
 }
 
+global TITLE_SCREEN := 0
+global GENNING := 1
+global PREVIEW_STARTED := 2
+global WAITING_FINAL_SAVE := 3
+global PAUSED := 4
+global WAIT_FOR_DELAY := 5
+global GO_TIME := 6
+global DONE := -1
+
 for k, saves_directory in SavesDirectories
 {
     if (!(modExist("atum", k)))
@@ -52,7 +61,7 @@ for k, saves_directory in SavesDirectories
 	}
     if (on_title(k))
     {
-      states.push(TITLE)
+      states.push(TITLE_SCREEN)
       Logg("Instance " . k . " on title screen")
     }
     else if (in_world(k))
@@ -67,6 +76,12 @@ for k, saves_directory in SavesDirectories
     }
 }
 
+Loop, %instances%
+{
+  the_State := states[A_Index]
+  Logg("Instance " . A_Index . " is in state " . the_State)
+}
+
 #Persistent
 SetTimer, Repeat, 20
 return
@@ -79,28 +94,24 @@ Repeat:
   check_done()
 return
 
-global TITLE := 0
-global GENNING := 1
-global PREVIEW_STARTED := 2
-global WAITING_FINAL_SAVE := 3
-global PAUSED := 4
-global WAIT_FOR_DELAY := 5
-global GO_TIME := 6
-global DONE := -1
-
 check_done()
 {
-  done := true
+  is_done := true
+  ;Logg("there are " . instances . " instances to check done")
   Loop, %instances%
   {
     theState := states[A_Index]
+    ;Logg("Instance " . A_Index . " is in state " . theState . " for state checking purposes")
     if (theState != DONE)
     {
-      done := false
+      ;Logg("Instance " . A_Index . " is not done")
+      is_done := false
       return
     }
+    ;Logg("Instance " . A_Index . " is done")
   }
-  if (done) {
+  Logg(":1234567890:")
+  if (is_done) {
     ComObjCreate("SAPI.SpVoice").Speak("Done")
     ExitApp
   }
@@ -127,11 +138,13 @@ toggle_sprint(idx, pid)
 
 HandleState(pid, idx) {
   if (states[idx] == DONE)
+  {
     return
-  else if (states[idx] == TITLE)
+  }
+  else if (states[idx] == TITLE_SCREEN)
   {
     theState := states[idx]
-    Logg("Instance " . idx . " in state " . theState)
+    Logg("Instance " . idx . " on title screen")
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
   }
   else if (states[idx] == GENNING) {
@@ -139,7 +152,7 @@ HandleState(pid, idx) {
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title) || HasPreviewStarted(idx))
     {
-      Logg("Instance " . idx . " loaded in so switching to next state")
+      Logg("Instance " . idx . " loaded in or preview has started")
     }
     else
     {
@@ -149,7 +162,7 @@ HandleState(pid, idx) {
   else if (states[idx] == PREVIEW_STARTED)
   {
     theState := states[idx]
-    Logg("Instance " . idx . " in state " . theState)
+    Logg("Instance " . idx . " has started preview")
     ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
   }
   else if (states[idx] == WAITING_FINAL_SAVE)
@@ -164,13 +177,14 @@ HandleState(pid, idx) {
     {
       return
     }
+    Logg("Instance " . idx . " has reached the final save so pausing")
     ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
 
   }
   else if (states[idx] == PAUSED)
   {
     theState := states[idx]
-    Logg("Instance " . idx . " in state " . theState)
+    Logg("Instance " . idx . " is paused")
     startTimes[idx] := A_TickCount
   }
   else if (states[idx] == WAIT_FOR_DELAY)
@@ -192,8 +206,15 @@ HandleState(pid, idx) {
       Logg("Instance " . idx . " is toggling hitboxes")
     }
     Sleep, 50
-    toggle_sprint(idx, pid)
+    if (toggleSprint)
+    {
+      toggle_sprint(idx, pid)
+    }
+    ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
     states[idx] := DONE
+    theState := states[idx]
+    Logg("state of instance " . idx . " is now " . theState . ", should be " . DONE)
+    return
   }
   else {
     theState := states[idx]
@@ -263,7 +284,6 @@ RunHide(Command)
   catch e
   {
     MsgBox, Error running command
-    UnsuspendAll()
     ExitApp
   }
   Result := Exec.StdOut.ReadAll()
@@ -476,6 +496,31 @@ readableTime()
       month := "0" . month
    timeString := month . "/" . day . "/" . year . " " . hour . ":" . minute . ":" second
    return (timeString)
+}
+
+getMostRecentFile(mcDirectory)
+{
+  savesDirectory := mcDirectory . "saves"
+  ;MsgBox, %savesDirectory%
+	counter := 0
+	Loop, Files, %savesDirectory%\*.*, D
+	{
+		if (A_LoopFileShortName == "speedrunigt")
+			continue
+		counter += 1
+		if (counter = 1)
+		{
+			maxTime := A_LoopFileTimeModified
+			mostRecentFile := A_LoopFileLongPath
+		}
+		if (A_LoopFileTimeModified >= maxTime)
+		{
+			maxTime := A_LoopFileTimeModified
+			mostRecentFile := A_LoopFileLongPath
+		}
+	}
+   recentFile := mostRecentFile
+   return (recentFile)
 }
 
 Logg(inString)
