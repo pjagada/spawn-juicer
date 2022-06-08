@@ -25,6 +25,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - Practice mode (go to instance 1 title screen)
 - fix blacklisting issue
 - remove wp click sound (exit by hotkey)
+- unsuspend all regardless of instance freezing on/off
 
 ## Setup instructions
 
