@@ -26,6 +26,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - fix blacklisting issue
 - remove wp click sound (exit by hotkey)
 - unsuspend all regardless of instance freezing on/off
+- add the OnExit thing
 
 ## Setup instructions
 
