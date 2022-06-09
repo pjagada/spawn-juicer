@@ -26,7 +26,7 @@ global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If 
 global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 global kryptonChecker := True ; change this to False if you want to use Krypton (highly recommend not using Krypton as it will usually break the macro)
 global coop := False ; will automatically open to LAN and prepare "/time set 0" (without sending command) when you join a world
-global language := "English" ; *EXPERIMENTAL* changes what title string is looked for based on set language. Will close the script if not set correctly.
+global language := "English" ; Experimental, default English. Changes what title string is looked for based on set language. Will close the script if not set correctly.
 ; Current language support: English, LOLCAT, Shakespearean English, 日本語, Bosanski, Nederlands
 
 ; Autoresetter Options:
