@@ -47,9 +47,7 @@ All scripts have further instructions at the top of the script file.
 - `spawn_juicer.ahk` - Run this script when you're ready to start resetting
 
 
-### Autoresetter blacklists
-- [My blacklist] (for 1.17 ssg gravel seed)
-- [LeonToast's blacklist] (for 1.17 ssg gravel seed but stricter)
+### [Autoresetter settings](https://github.com/pjagada/spawn-juicer/wiki/Autoresetter-settings)
 
 ### Muting resets
 If the WorldPreview reset sounds are annoying, use [this resource pack].
