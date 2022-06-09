@@ -27,6 +27,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - remove wp click sound (exit by hotkey)
 - unsuspend all regardless of instance freezing on/off
 - add the OnExit thing
+- add crossbow gun thing (full hotbar and sound pack)
 
 ## Setup instructions
 
