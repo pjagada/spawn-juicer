@@ -38,6 +38,15 @@ Watch [the setup video] and follow those instructions (the macro options are sli
 
 When starting up the macro, make sure that all instances are either on the title screen or on the pause menu of an atum-ed world.
 
+### Script Guide
+All scripts have further instructions at the top of the script file.
+
+- `MultiResetSetup-v0.2.ahk` - Run this script once when you create your instances to put instanceNumber.txt in them
+- `SeedInitialize.ahk` - Run this script when you want to change the seed (in atum) that your instances are using
+- `ActivateSprintHitboxes.ahk` - Run this script whenever you launch your instances to toggle sprint and hitboxes
+- `spawn_juicer.ahk` - Run this script when you're ready to start resetting
+
+
 ### Autoresetter blacklists
 - [My blacklist] (for 1.17 ssg gravel seed)
 - [LeonToast's blacklist] (for 1.17 ssg gravel seed but stricter)
@@ -67,7 +76,7 @@ End: open to LAN and put dragon in perch approach
 
 If you're having issues, make sure:
 - you are using the [latest version]
-- you do not have Krypton in any of your instances (can mess with log reading and cause random issues)
+- your game language is English (US, UK, Australia, Canada, etc.). Languages like Shakespearean or pirate or LOLCAT or foreign languages will likely not work.
 
 ### Further help
 
