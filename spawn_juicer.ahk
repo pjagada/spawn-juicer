@@ -26,6 +26,8 @@ global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If 
 global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 global kryptonChecker := True ; change this to False if you want to use Krypton (highly recommend not using Krypton as it will usually break the macro)
 global coop := False ; will automatically open to LAN and prepare "/time set 0" (without sending command) when you join a world
+global language := "English" ; *EXPERIMENTAL* changes what title string is looked for based on set language. Will close the script if not set correctly.
+; Current language support: English, LOLCAT, Shakespearean English, 日本語, Bosanski, Nederlands
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
@@ -566,8 +568,39 @@ GetActiveInstanceNum() {
 return -1
 }
 
-IsInGame(currTitle) { ; If using another language, change Singleplayer and Multiplayer to match game title
-return InStr(currTitle, "Singleplayer") || InStr(currTitle, "Multiplayer") || InStr(currTitle, "Instance")
+IsInGame(currTitle) { ; Checks game title against language selected
+
+if(language == "English") {
+  return InStr(currTitle, "Singleplayer") || InStr(currTitle, "Multiplayer") || InStr(currTitle, "Instance")
+}
+
+else if(language == "LOLCAT"){
+  return InStr(currTitle, "Loneleh kitteh") || InStr(currTitle, "NAT LONELEY") || InStr(currTitle, "Instance")
+}
+
+else if(language == "Shakespearean English") {
+  return InStr(currTitle, "Soliloquy") || InStr(currTitle, "Multiplay'r") || InStr(currTitle, "Instance")
+}
+
+else if(language == "Japanese" or language == "日本語") {
+  return InStr(currTitle, "シングルプレイ") || InStr(currTitle, "マルチプレイ") || InStr(currTitle, "Instance")
+}
+
+else if(language == "Bosanski" or language == "Bosnian" or language == "босански"){
+  return InStr(currTitle, "Samostalna igra") || InStr(currTitle, "Mrežna igra") || InStr(currTitle, "Instance")
+}
+
+else if(language == "Dutch" or language == "Nederlands") {
+  return InStr(currTitle, "Alleen spelen") || InStr(currTitle, "Samen spelen") || InStr(currTitle, "Instance")
+}
+
+;add more here, replace this line
+
+else {
+  MsgBox, Language set incorrectly or not supported yet, please change it and restart script
+  ExitApp
+}
+
 }
 
 Reset(state := 0)
