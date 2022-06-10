@@ -74,8 +74,8 @@ GetAllPIDs()
 SetTitles()
 
 tmptitle := ""
-for i, tmppid in PIDs{
-  WinGetTitle, tmptitle, ahk_pid %tmppid%
+for eye, tmp_pid in PIDs{
+  WinGetTitle, tmptitle, ahk_pid %tmp_pid%
   titles.Push(tmptitle)
   resetStates.push(2) ; need to exit
   resetTimes.push(0)
@@ -84,7 +84,7 @@ for i, tmppid in PIDs{
   distances.Push(0)
   startTimes.Push(A_TickCount)
   reachedSave.Push(false)
-  WinSet, AlwaysOnTop, Off, ahk_pid %tmppid%
+  WinSet, AlwaysOnTop, Off, ahk_pid %tmp_pid%
 }
 global version = getVersion()
 global language := readLine("lang", 1)
@@ -112,9 +112,9 @@ for k, saves_directory in SavesDirectories
 
 if (affinity) {
   Logg("Setting high affinity for all instances since starting script")
-  for i, tmppid in PIDs {
-    Logg("Setting high affinity for instance " . i . " since starting script")
-    SetAffinity(tmppid, highBitMask)
+  for jay, tmp_pid in PIDs {
+    Logg("Setting high affinity for instance " . jay . " since starting script")
+    SetAffinity(tmp_pid, highBitMask)
   }
 }
 
@@ -128,8 +128,8 @@ return
 
 Repeat:
   Critical
-  for i, pid in PIDs {
-    HandleResetState(pid, i)
+  for kay, pid in PIDs {
+    HandleResetState(pid, kay)
   }
   HandlePlayerState()
 return
@@ -1175,9 +1175,9 @@ AddToBlacklist()
   UnsuspendAll()
   if (affinity) {
     Logg("Setting high affinity for all instances since ending script")
-    for i, tmppid in PIDs {
-      Logg("Setting high affinity for instance " . i . " since ending script")
-      SetAffinity(tmppid, highBitMask)
+    for el, tmp_pid in PIDs {
+      Logg("Setting high affinity for instance " . el . " since ending script")
+      SetAffinity(tmp_pid, highBitMask)
     }
   }
   ExitApp
