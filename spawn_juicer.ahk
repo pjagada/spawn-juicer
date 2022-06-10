@@ -272,8 +272,13 @@ HandleResetState(pid, idx) {
     else
     {
       Logg("Instance " . idx . " has a bad spawn so switching to state 2")
-      ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-      resetStates[idx] := EXIT_WORLD ; need to exit world
+      if (modExist("worldpreview", idx)) {
+        ControlSend, ahk_parent, {Blind}h, ahk_pid %pid%
+        resetStates[idx] := LOADING
+      } else {
+        ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
+        resetStates[idx] := EXIT_WORLD ; need to exit world
+      }
     }
     return
   }
