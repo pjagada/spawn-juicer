@@ -26,12 +26,13 @@ global f3showDelay = 100 ; how many milliseconds of delay before showing f3. If 
 global logging = True ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 global kryptonChecker := True ; change this to False if you want to use Krypton (highly recommend not using Krypton as it will usually break the macro)
 global coop := False ; will automatically open to LAN and prepare "/time set 0" (without sending command) when you join a world
+global hotkeyCooldown := 200 ; how many milliseconds the script will wait after getting a hotkey input before registering further inputs (useful for if you accidentally double tap a hotkey so it doesn't break everything)
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
 global centerPointX := 257.5 ; this is the x coordinate of that certain point (by default it's the x coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
 global centerPointZ := 228.5 ; this is the z coordinate of that certain point (by default it's the z coordinate of being pushed up against the window of the blacksmith of -3294725893620991126)
-global radius := 10 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global radius := 20 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global giveAngle := True ; Give the angle (TTS) that you need to travel at to get to your starting point
 
@@ -895,7 +896,7 @@ modExist(mod, idx)
   Logg("Checking mods in " . modsFolder)
    Loop, Files, %modsFolder%\*.*, F
    {
-    Logg("checking mod " . A_LoopFileName)
+    ;Logg("checking mod " . A_LoopFileName)
       if(InStr(A_LoopFileName, mod) && (!(InStr(A_LoopFileName, "disabled"))))
       {
         Logg("found the mod " . mod)
@@ -1180,11 +1181,23 @@ AddToBlacklist()
   return
 
     PgDn:: ; Reset and give spawn
+      timeSinceLastHotkey := A_TimeSincePriorHotkey
+    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+        Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+        return
+      }
+      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
       Reset(0)
     return
 
     End:: ; Perch
-		Perch()
+      timeSinceLastHotkey := A_TimeSincePriorHotkey
+    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+          Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+          return
+        }
+        Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
+      Perch()
 	return
 
     F5:: ; Reload if macro locks up
@@ -1192,10 +1205,22 @@ AddToBlacklist()
    return
 
    ^B:: ; Add a spawn (the one that the macro most recently gave you) to the blacklisted spawns.
+    timeSinceLastHotkey := A_TimeSincePriorHotkey
+    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+      return
+    }
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
 		AddToBlacklist()
 	return
 
   Delete:: ; kill villager
+    timeSinceLastHotkey := A_TimeSincePriorHotkey
+    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+      return
+    }
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
     GiveSword()
   return
 }
