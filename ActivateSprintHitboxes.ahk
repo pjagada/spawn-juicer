@@ -387,9 +387,11 @@ in_world(idx) { ; If using another language, change Singleplayer and Multiplayer
 on_title(idx)
 {
   mcDirectory := SavesDirectories[idx]
+  Logg("checking if in world, mcDirectory is " . mcDirectory)
   lastWorld := getMostRecentFile(mcDirectory)
+  Logg("last world is " . lastWorld)
   lockFile := lastWorld . "\session.lock"
-  ;Logg("checking lockFile " . lockFile)
+  Logg("checking lockFile " . lockFile)
   FileRead, sessionlockfile, %lockFile%
   if (ErrorLevel = 0)
   {

@@ -3,7 +3,7 @@
 ;#Warn
 
 ; puts the seed in all open instances of minecraft with atum (make sure they're all on the title screen)
-global SEED := "-3294725893620991126"
+global SEED := "8398967436125155523"
 global logging := false
 
 SetKeyDelay, 0
@@ -307,9 +307,11 @@ check_title_screen(idx)
 inWorld(idx)
 {
   mcDirectory := SavesDirectories[idx]
+  Logg("checking if in world, mcDirectory is " . mcDirectory)
   lastWorld := getMostRecentFile(mcDirectory)
+  Logg("last world is " . lastWorld)
   lockFile := lastWorld . "\session.lock"
-  ;Logg("checking lockFile " . lockFile)
+  Logg("checking lockFile " . lockFile)
   FileRead, sessionlockfile, %lockFile%
   if (ErrorLevel = 0)
   {
@@ -321,7 +323,6 @@ inWorld(idx)
 getMostRecentFile(mcDirectory)
 {
   savesDirectory := mcDirectory . "saves"
-  ;MsgBox, %savesDirectory%
 	counter := 0
 	Loop, Files, %savesDirectory%\*.*, D
 	{
