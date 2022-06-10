@@ -81,11 +81,13 @@ Ask in [#public-help] in the [SSG Discord] if you have any questions about anyth
 
 Char - WorldPreview support
 
-Specnr - original creator of this macro
+Specnr - original creator of this macro, author of worldBopper9000 and instance setup script
 
 jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting
 
 EvanKae - affinity help
+
+PusheenMaster5 - additional language support
 
 MagneticMaybe, Rayoh, HanabiYaki - early testing
 
