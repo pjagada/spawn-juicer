@@ -75,6 +75,7 @@ End: open to LAN and put dragon in perch approach
 If you're having issues, make sure:
 - you are using the [latest version]
 - your game language is English (US, UK, Australia, Canada, etc.). Languages like Shakespearean or pirate or LOLCAT or foreign languages will likely not work.
+- you have no spaces in your instance path. For example, `C:\MultiMC\instances\1.16.1 1\.minecraft` has a space in it, but `C:\MultiMC\instances\1.16.1_1\.minecraft` would be fine.
 
 ### Further help
 
