@@ -24,11 +24,9 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - Settings reset
 - Practice mode (go to instance 1 title screen)
 - fix blacklisting issue
-- remove wp click sound (exit by hotkey)
-- unsuspend all regardless of instance freezing on/off
-- add the OnExit thing
 - add crossbow gun thing (full hotbar and sound pack)
-- add hotkey cooldown
+- fix `getMostRecentFile()` to work when there's no world in the instance
+- check for spaces in instance path
 
 ## Setup instructions
 
@@ -76,6 +74,7 @@ If you're having issues, make sure:
 - you are using the [latest version]
 - your game language is English (US, UK, Australia, Canada, etc.). Languages like Shakespearean or pirate or LOLCAT or foreign languages will likely not work.
 - you have no spaces in your instance path. For example, `C:\MultiMC\instances\1.16.1 1\.minecraft` has a space in it, but `C:\MultiMC\instances\1.16.1_1\.minecraft` would be fine.
+- you have at least one world in each instance (doesn't matter if it's practice map/speedrun world/other random world)
 
 ### Further help
 
