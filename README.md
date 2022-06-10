@@ -47,9 +47,6 @@ All scripts have further instructions at the top of the script file.
 
 ### [Autoresetter settings](https://github.com/pjagada/spawn-juicer/wiki/Autoresetter-settings)
 
-### Muting resets
-If the WorldPreview reset sounds are annoying, use [this resource pack].
-
 ## List of hotkeys
 
 Ctrl + End: unmute and unsuspend all instances and close the script
