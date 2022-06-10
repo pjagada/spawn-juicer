@@ -3,7 +3,7 @@ import glob
 import os
 
 # Edit this
-INST_FOLDER = "C:/MultiInstanceMC/MultiMC/instances"
+INST_FOLDER = "C:/MultiMC/instances"
 
 with open("bop.log", "w") as log:
     files = glob.glob(f'{INST_FOLDER}/*/.minecraft/saves/*')
