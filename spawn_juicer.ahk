@@ -66,6 +66,18 @@ global playerState := 0 ; needs spawn
 global highBitMask := (2 ** threadCount) - 1
 global lowBitMask := (2 ** Ceil(threadCount * lowBitmaskMultiplier)) - 1
 
+global RUNNING := 0
+global NEEDS_TO_RESET := 1
+;global CHECK_SETTINGS := 2
+global EXIT_WORLD := 2
+global TIME_BETWEEN_WORLDS := 3
+global LOADING := 4
+global GET_SPAWN := 5
+global CHECK_SPAWN := 6
+global GOOD_SPAWN := 7
+global WAITING_FOR_FREEZE := 8
+global FROZEN := 9
+
 UnsuspendAll()
 sleep, %restartDelay%
 GetAllPIDs()
@@ -75,7 +87,7 @@ tmptitle := ""
 for eye, tmp_pid in PIDs{
   WinGetTitle, tmptitle, ahk_pid %tmp_pid%
   titles.Push(tmptitle)
-  resetStates.push(2) ; need to exit
+  resetStates.push(EXIT_WORLD) ; need to exit
   resetTimes.push(0)
   xCoords.Push(0)
   zCoords.Push(0)
@@ -155,7 +167,7 @@ HandlePlayerState()
     instancesWithGoodSpawns := []
     for r, state in resetStates
     {
-      if (state >= 8)
+      if (state >= WAITING_FOR_FREEZE)
       {
         instancesWithGoodSpawns.Push(r)
         Logg("Instance " . r . " has a good spawn so adding it to instancesWithGoodSpawns")
@@ -182,7 +194,7 @@ HandlePlayerState()
 	  {
       writeString := "player given spawn of distance " . minDist . "`n"
       Logg(writeString)
-      resetStates[bestSpawn] := 0 ; running
+      resetStates[bestSpawn] := RUNNING ; running
       SwitchInstance(bestSpawn)
       AlertUser(bestSpawn)
       playerState := 1 ; running
@@ -204,22 +216,22 @@ HandlePlayerState()
 }
 
 HandleResetState(pid, idx) {
-  if (resetStates[idx] == 0) ; running
+  if (resetStates[idx] == RUNNING) ; running
     return
-  else if (resetStates[idx] == 1) ; needs to reset from play
+  else if (resetStates[idx] == NEEDS_TO_RESET) ; needs to reset from play
   {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     WinSet, AlwaysOnTop, Off, ahk_pid %pid%
     ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
   }
-  else if (resetStates[idx] == 2) ; need to exit world from pause
+  else if (resetStates[idx] == EXIT_WORLD) ; need to exit world from pause
   {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
   }
-  else if (resetStates[idx] == 3) ; waiting to enter time between worlds
+  else if (resetStates[idx] == TIME_BETWEEN_WORLDS) ; waiting to enter time between worlds
   {
     theState := resetStates[idx]
     WinGetTitle, title, ahk_pid %pid%
@@ -229,7 +241,7 @@ HandleResetState(pid, idx) {
     }
     Logg("Instance " . idx . " exited world so switching to state 4")
   }
-  else if (resetStates[idx] == 4) { ; checking if loaded in
+  else if (resetStates[idx] == LOADING) { ; checking if loaded in
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
     WinGetTitle, title, ahk_pid %pid%
@@ -242,30 +254,30 @@ HandleResetState(pid, idx) {
       return
     }
   }
-  else if (resetStates[idx] == 5) ; get spawn
+  else if (resetStates[idx] == GET_SPAWN) ; get spawn
   {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     GetSpawn(idx)
   }
-  else if (resetStates[idx] == 6) ; check spawn
+  else if (resetStates[idx] == CHECK_SPAWN) ; check spawn
   {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
       Logg("Instance " . idx . " has a good spawn so switching to state 7")
       ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
-      resetStates[idx] := 7 ; good spawn unfrozen
+      resetStates[idx] := GOOD_SPAWN ; good spawn unfrozen
     }
     else
     {
       Logg("Instance " . idx . " has a bad spawn so switching to state 2")
       ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-      resetStates[idx] := 2 ; need to exit world
+      resetStates[idx] := EXIT_WORLD ; need to exit world
     }
     return
   }
-  else if (resetStates[idx] == 7) ; good spawn waiting to reach final save
+  else if (resetStates[idx] == GOOD_SPAWN) ; good spawn waiting to reach final save
   {
     theState := resetStates[idx]
     ;OutputDebug, [macro] Instance %idx% in state %theState%
@@ -281,7 +293,7 @@ HandleResetState(pid, idx) {
     ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
     startTimes[idx] := A_TickCount
   }
-  else if (resetStates[idx] == 8) ; good spawn waiting for freeze delay to finish then freezing
+  else if (resetStates[idx] == WAITING_FOR_FREEZE) ; good spawn waiting for freeze delay to finish then freezing
   {
     theState := resetStates[idx]
     if (playerState == 0) ; needs spawn so this instance about to be used
@@ -295,7 +307,7 @@ HandleResetState(pid, idx) {
     Logg("Instance " . idx . " has a good spawn so switching to state 9 and suspending")
     SuspendInstance(pid)
   }
-  else if (resetStates[idx] == 9) ; frozen good spawn waiting to be used
+  else if (resetStates[idx] == FROZEN) ; frozen good spawn waiting to be used
   {
     return
   }
@@ -750,9 +762,9 @@ Reset(state := 0)
     sleep, %fullScreenDelay%
   }
   playerState := state ; needs spawn or keep resetting
-  if (resetStates[idx] == 0) ; instance is being played
+  if (resetStates[idx] == RUNNING) ; instance is being played
   {
-    resetStates[idx] := 1 ; needs to exit from play
+    resetStates[idx] := NEEDS_TO_RESET ; needs to exit from play
   }
   if (affinity) {
     Logg("Setting high affinity for all instances since all instances are resetting now")
