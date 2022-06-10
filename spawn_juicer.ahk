@@ -66,10 +66,8 @@ global playerState := 0 ; needs spawn
 global highBitMask := (2 ** threadCount) - 1
 global lowBitMask := (2 ** Ceil(threadCount * lowBitmaskMultiplier)) - 1
 
-if (instanceFreezing) {
-  UnsuspendAll()
-  sleep, %restartDelay%
-}
+UnsuspendAll()
+sleep, %restartDelay%
 GetAllPIDs()
 SetTitles()
 
