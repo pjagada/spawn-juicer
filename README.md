@@ -39,10 +39,13 @@ When starting up the macro, make sure that all instances are either on the title
 ### Script Guide
 All scripts have further instructions at the top of the script file.
 
-- `MultiResetSetup-v0.2.ahk` - Run this script once when you create your instances to put instanceNumber.txt in them
-- `SeedInitialize.ahk` - Run this script when you want to change the seed (in atum) that your instances are using
-- `ActivateSprintHitboxes.ahk` - Run this script whenever you launch your instances to toggle sprint and hitboxes
-- `spawn_juicer.ahk` - Run this script when you're ready to start resetting
+- `1_InstanceSetup.ahk` - Run this script once when you create your instances to put instanceNumber.txt in them
+- `2_SeedChange.ahk` - Edit and run this script when you want to change the seed (in atum) that your instances are using
+- `3_ToggleSprintHitboxes.ahk` - Edit and run this script whenever you launch your instances to toggle sprint and hitboxes
+- `4_SpawnJuicer.ahk` - Run this script when you're ready to start resetting, but first, modify the following
+  - `4_hotkeys.ahk` - Edit this script to customize your hotkeys
+  - `4_options.ahk` - Edit this script to customize your options
+- `5_worldBopper9000.py`- Edit and run this script to delete all `New World` or `Speedrun #` worlds in all of your instances (not just the open ones)
 
 
 ### [Autoresetter settings](https://github.com/pjagada/spawn-juicer/wiki/Autoresetter-settings)
