@@ -719,6 +719,12 @@ else {
 
 Reset(state := 0)
 {
+  timeSinceLastHotkey := A_TimeSincePriorHotkey
+  if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+    return
+  }
+  Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
   idx := GetActiveInstanceNum()
   if (inFullscreen(idx)) {
     send, {F11}
@@ -747,6 +753,12 @@ SetTitles() {
 
 Perch()
 {
+  timeSinceLastHotkey := A_TimeSincePriorHotkey
+  if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+    return
+  }
+  Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
    OpenToLAN()
    Send, /
    Sleep, 70
@@ -756,6 +768,12 @@ Perch()
 
 GiveSword()
 {
+  timeSinceLastHotkey := A_TimeSincePriorHotkey
+  if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+    return
+  }
+  Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
    OpenToLAN()
    Send, /
    Sleep, 70
@@ -1078,6 +1096,12 @@ AlertUser(n)
 
 AddToBlacklist()
 {
+  timeSinceLastHotkey := A_TimeSincePriorHotkey
+  if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
+    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
+    return
+  }
+  Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
 	t := currInst
    xCoord := xCoords[t]
    zCoord := zCoords[t]
@@ -1091,58 +1115,4 @@ AddToBlacklist()
   ComObjCreate("SAPI.SpVoice").Speak(speakString)
 }
 
-
-#IfWinActive, Minecraft
-{
-  RAlt::  ; Pause all macros
-    Suspend
-  return
-
-    PgDn:: ; Reset and give spawn
-      timeSinceLastHotkey := A_TimeSincePriorHotkey
-    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
-        Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
-        return
-      }
-      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
-      Reset(0)
-    return
-
-    End:: ; Perch
-      timeSinceLastHotkey := A_TimeSincePriorHotkey
-    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
-          Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
-          return
-        }
-        Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
-      Perch()
-	return
-
-    F5:: ; Reload if macro locks up
-      Reload
-   return
-
-   ^B:: ; Add a spawn (the one that the macro most recently gave you) to the blacklisted spawns.
-    timeSinceLastHotkey := A_TimeSincePriorHotkey
-    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
-      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
-      return
-    }
-    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
-		AddToBlacklist()
-	return
-
-  Delete:: ; kill villager
-    timeSinceLastHotkey := A_TimeSincePriorHotkey
-    if (timeSinceLastHotkey < hotkeyCooldown && timeSinceLastHotkey >= 0) {
-      Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is less than the hotkey cooldown of " . hotkeyCooldown . ", so not gonna do anything")
-      return
-    }
-    Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
-    GiveSword()
-  return
-}
-
-^End:: ; Safely close the script
-  ExitApp
-return
+#Include hotkeys.ahk
