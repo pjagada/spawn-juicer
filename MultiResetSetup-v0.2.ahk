@@ -1,5 +1,6 @@
 #NoEnv
 #SingleInstance Force
+#include functions.ahk
 
 ; Make sure all instances are unfrozen, and in order on the front of the taskbar
 ; Also have LiveSplit open :)
@@ -12,40 +13,7 @@ global instances := 0
 global PIDs := []
 global SavesDirectories := []
 
-RunHide(Command)
-{
-  dhw := A_DetectHiddenWindows
-  DetectHiddenWindows, On
-  Run, %ComSpec%,, Hide, cPid
-  WinWait, ahk_pid %cPid%
-  DetectHiddenWindows, %dhw%
-  DllCall("AttachConsole", "uint", cPid)
 
-  Shell := ComObjCreate("WScript.Shell")
-  Exec := Shell.Exec(Command)
-  Result := Exec.StdOut.ReadAll()
-
-  DllCall("FreeConsole")
-  Process, Close, %cPid%
-  Return Result
-}
-
-GetSavesDir(pid)
-{
-  command := Format("powershell.exe $x = Get-WmiObject Win32_Process -Filter \""ProcessId = {1}\""; $x.CommandLine", pid)
-  rawOut := RunHide(command)
-  if (InStr(rawOut, "--gameDir")) {
-    strStart := RegExMatch(rawOut, "P)--gameDir (?:""(.+?)""|([^\s]+))", strLen, 1)
-    return SubStr(rawOut, strStart+10, strLen-10) . "\"
-  } else {
-    strStart := RegExMatch(rawOut, "P)(?:-Djava\.library\.path=(.+?) )|(?:\""-Djava\.library.path=(.+?)\"")", strLen, 1)
-    if (SubStr(rawOut, strStart+20, 1) == "=") {
-      strLen -= 1
-      strStart += 1
-    }
-    return StrReplace(SubStr(rawOut, strStart+20, strLen-28) . ".minecraft\", "/", "\")
-  }
-}
 
 GetInstanceTotal() {
   total := 0
@@ -74,7 +42,7 @@ GetAllPIDs()
   }
   ; Generate saves
   Loop, %instances% {
-    SavesDirectories[A_Index] := GetSavesDir(PIDs[A_Index])
+    SavesDirectories[A_Index] := GetMcDir(PIDs[A_Index])
   }
 }
 
