@@ -173,26 +173,6 @@ SetTitles() {
   }
 }
 
-ShiftTab(thePID, n := 1)
-{
-   if WinActive("ahk_pid" thePID)
-   {
-      Loop, %n%
-      {
-         Send, +`t
-      }
-   }
-   else
-   {
-      ControlSend, ahk_parent, {Blind}{Shift down}, ahk_pid %thePID%
-      Loop, %n%
-      {
-         ControlSend, ahk_parent, {Blind}{Tab}, ahk_pid %thePID%
-      }
-      ControlSend, ahk_parent, {Blind}{Shift up}, ahk_pid %thePID%
-   }
-}
-
 ShiftEnter(thePID, n := 1)
 {
    if WinActive("ahk_pid" thePID)
@@ -231,24 +211,6 @@ CtrlA(thePID, n := 1)
       }
       ControlSend, ahk_parent, {Blind}{Ctrl up}, ahk_pid %thePID%
    }
-}
-
-modExist(mod, idx)
-{
-  savesDirectory := SavesDirectories[idx]
-  modsFolder := StrReplace(savesDirectory, "saves", "mods") . "mods"
-  Logg("Checking mods in " . modsFolder)
-   Loop, Files, %modsFolder%\*.*, F
-   {
-    Logg("checking mod " . A_LoopFileName)
-      if(InStr(A_LoopFileName, mod) && (!(InStr(A_LoopFileName, "disabled"))))
-      {
-        Logg("found the mod " . mod)
-         return true
-      }
-   }
-   Logg("did not find the mod " . mod)
-  return false
 }
 
 check_title_screen(idx)
