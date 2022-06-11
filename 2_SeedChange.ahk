@@ -151,22 +151,6 @@ GetAllPIDs()
   }
 }
 
-GetActiveInstanceNum() {
-  WinGet, thePID, PID, A
-  WinGetTitle, title, ahk_pid %thePID%
-  if (IsInGame(title)) {
-    for r, temppid in PIDs {
-      if (temppid == thePID)
-        return r
-    }
-  }
-return -1
-}
-
-IsInGame(currTitle) { ; If using another language, change Singleplayer and Multiplayer to match game title
-return InStr(currTitle, "Singleplayer") || InStr(currTitle, "Multiplayer") || InStr(currTitle, "Instance")
-}
-
 SetTitles() {
   for g, thePID in PIDs {
     WinSetTitle, ahk_pid %thePID%, , Minecraft* - Instance %g%
