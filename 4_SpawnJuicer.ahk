@@ -74,7 +74,6 @@ for eye, tmp_pid in PIDs{
   WinSet, AlwaysOnTop, Off, ahk_pid %tmp_pid%
 }
 global version = getVersion()
-global language := readLine("lang", 1)
 
 for k, saves_directory in SavesDirectories
 {

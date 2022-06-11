@@ -314,7 +314,7 @@ GetAllPIDs()
   }
 }
 
-in_world(idx) { ; If using another language, change Singleplayer and Multiplayer to match game title
+in_world(idx) {
   thePID := PIDs[idx]
   WinGetTitle, title, ahk_pid %thePID%
   return IsInGame(title)
