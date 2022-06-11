@@ -15,7 +15,7 @@ SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2
 
-#Include options.ahk
+#Include 4_options.ahk
 
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
 global currInst := -1
@@ -722,4 +722,4 @@ SetTitles() {
 }
 
 
-#Include hotkeys.ahk
+#Include 4_hotkeys.ahk
