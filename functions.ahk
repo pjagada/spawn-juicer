@@ -101,7 +101,7 @@ readableTime()
       day := "0" . day
    if (month < 10)
       month := "0" . month
-   timeString := month . "/" . day . "/" . year . " " . hour . ":" . minute . ":" second
+   timeString := month . "/" . day . "/" . year . " " . hour . ":" . minute . ":" second . "." . A_MSec
    return (timeString)
 }
 
