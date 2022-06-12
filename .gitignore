@@ -6,3 +6,4 @@ spawn_juicer_old.ahk
 *.cfg
 options_reading_testing.ahk
 test.ahk
+*.log
