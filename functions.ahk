@@ -615,3 +615,8 @@ mc_key_to_ahk_key(mcKey) {
    }
 }
 
+speak_async(speakString, speakRate)
+{
+   Logg("saying " . speakString . " with rate of " . speakRate)
+   Run, %A_ScriptDir%\speak.ahk "%speakString%" "%speakRate%", %A_ScriptDir%
+}
