@@ -31,13 +31,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 
 ## Setup instructions
 
-Download the [latest release] and extract all files into one folder.
-
-Watch [the setup video] and follow those instructions (mainly for OBS).
-
-Look at the files in the order detailed below.
-
-When starting up the macro, make sure that all instances are either on the title screen or on the pause menu of an atum-ed world.
+Read through the [setup instructions](https://github.com/pjagada/spawn-juicer/wiki/Full-Setup-Instructions) and the [troubleshooting guide](https://github.com/pjagada/spawn-juicer/wiki/Help-and-Troubleshooting) before asking for help.
 
 ### Script Guide
 All scripts have further instructions at the top of the script file. Except for `5_worldBopper9000.py`, scripts should only be edited or only be run - not both.
@@ -70,16 +64,7 @@ Delete: open to LAN and give netherite sword with sharpness
 
 End: open to LAN and put dragon in perch approach
 
-## Troubleshooting
-
-If you're having issues, make sure:
-- you are using the [latest version]
-- you have no spaces in your instance path. For example, `C:\MultiMC\instances\1.16.1 1\.minecraft` has a space in it, but `C:\MultiMC\instances\1.16.1_1\.minecraft` would be fine.
-- you have at least one world in each instance (doesn't matter if it's practice map/speedrun world/other random world)
-
-### Further help
-
-Ask in [#public-help] in the [SSG Discord] if you have any questions about anything.
+## [Help and Troubleshooting](https://github.com/pjagada/spawn-juicer/wiki/Help-and-Troubleshooting)
 
 ## Credits
 
