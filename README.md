@@ -46,9 +46,9 @@ All scripts have further instructions at the top of the script file. Except for 
 - `2_options.ahk` - Edit this script to customize all options for all scripts
 - `3_SeedChange.ahk` - Run this script when you want to change the seed (in atum) that your instances are using
 - `4_ToggleSprintHitboxes.ahk` - Run this script whenever you launch your instances to toggle sprint and hitboxes
-- `4_SpawnJuicer.ahk` - Run this script when you're ready to start resetting, but first, modify the following
-  - `4_hotkeys.ahk` - Edit this script to customize your hotkeys
-- `5_worldBopper9000.py`- Edit and run this script to delete all `New World` or `Speedrun #` worlds in all of your instances (not just the open ones)
+- `5_SpawnJuicer.ahk` - Run this script when you're ready to start resetting, but first, modify the following
+  - `5_hotkeys.ahk` - Edit this script to customize your hotkeys
+- `6_worldBopper9000.py`- Edit and run this script to delete all `New World` or `Speedrun #` worlds in all of your instances (not just the open ones)
 
 ### [Autoresetter settings](https://github.com/pjagada/spawn-juicer/wiki/Autoresetter-settings)
 
