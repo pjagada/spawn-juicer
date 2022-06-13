@@ -131,7 +131,7 @@ GiveAngle(n)
       }
       angleList := StrSplit(angle, ".")
       intAngle := angleList[1]
-      ComObjCreate("SAPI.SpVoice").Speak(intAngle)
+      speak_async(intAngle)
    }
 }
 
@@ -248,7 +248,7 @@ AddToBlacklist()
       FileAppend, `n%theString%, blacklist.txt
   speakString := "blacklisted instance " . t . "spawn of x " . xCoord . " z " . zCoord
   Logg(speakString)
-  ComObjCreate("SAPI.SpVoice").Speak(speakString)
+  speak_async(speakString)
 }
 
 readLine(option, idx)
@@ -630,8 +630,9 @@ mc_key_to_ahk_key(mcKey) {
    }
 }
 
-speak_async(speakString, speakRate)
+speak_async(speakString)
 {
+   speakRate := TTS_speed
    Logg("saying " . speakString . " with rate of " . speakRate)
    Run, %A_ScriptDir%\speak.ahk "%speakString%" "%speakRate%", %A_ScriptDir%
 }

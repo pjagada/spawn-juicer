@@ -59,7 +59,7 @@ for m, saves_directory in SavesDirectories
     ExitApp
   }
 }
-ComObjCreate("SAPI.SpVoice").Speak("Success")
+speak_async("Success")
 
 check_atum(idx)
 {

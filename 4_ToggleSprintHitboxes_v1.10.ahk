@@ -112,7 +112,7 @@ check_done()
   }
   Logg(":1234567890:")
   if (is_done) {
-    ComObjCreate("SAPI.SpVoice").Speak("Done")
+    speak_async("Done")
     ExitApp
   }
 }

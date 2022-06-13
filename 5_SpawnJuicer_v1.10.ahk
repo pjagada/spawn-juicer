@@ -110,7 +110,7 @@ if (affinity) {
 }
 
 if (!disableTTS)
-  ComObjCreate("SAPI.SpVoice").Speak("Ready")
+  speak_async("Ready")
 MsgBox, resetting will start when you close this box
 
 #Persistent

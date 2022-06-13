@@ -53,6 +53,7 @@ Loop, %instances% {
     FileDelete, %numFile%
   FileAppend, %A_Index%, %numFile%
 }
-ComObjCreate("SAPI.SpVoice").Speak("Done")
+
+speak_async("Done")
 
 ExitApp
