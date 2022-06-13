@@ -33,36 +33,9 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 
 Read through the [setup instructions](https://github.com/pjagada/spawn-juicer/wiki/Full-Setup-Instructions) and the [troubleshooting guide](https://github.com/pjagada/spawn-juicer/wiki/Help-and-Troubleshooting) before asking for help.
 
-### Script Guide
-All scripts have further instructions at the top of the script file. Except for `5_worldBopper9000.py`, scripts should only be edited or only be run - not both.
-
-- `1_InstanceSetup.ahk` - Run this script once when you create your instances to put instanceNumber.txt in them
-- `2_options.ahk` - Edit this script to customize all options for all scripts
-- `3_SeedChange.ahk` - Run this script when you want to change the seed (in atum) that your instances are using
-- `4_ToggleSprintHitboxes.ahk` - Run this script whenever you launch your instances to toggle sprint and hitboxes
-- `5_SpawnJuicer.ahk` - Run this script when you're ready to start resetting, but first, modify the following
-  - `5_hotkeys.ahk` - Edit this script to customize your hotkeys
-- `6_worldBopper9000.py`- Edit and run this script to delete all `New World` or `Speedrun #` worlds in all of your instances (not just the open ones)
+### [Script Guide](https://github.com/pjagada/spawn-juicer/wiki/Options,-Hotkeys,-and-Script-Guide#script-guide)
 
 ### [Autoresetter settings](https://github.com/pjagada/spawn-juicer/wiki/Autoresetter-settings)
-
-## List of hotkeys
-
-Ctrl + End: unmute and unsuspend all instances and close the script
-
-All of the following hotkeys are only functional if an unsuspended minecraft is the active window:
-
-RAlt: Pause macro
-
-Page Down: Give good spawn
-
-F5: unmute and unsuspend all instances and reload the script
-
-Ctrl + B: add the most recently given spawn to the blacklist
-
-Delete: open to LAN and give netherite sword with sharpness
-
-End: open to LAN and put dragon in perch approach
 
 ## [Help and Troubleshooting](https://github.com/pjagada/spawn-juicer/wiki/Help-and-Troubleshooting)
 
@@ -85,9 +58,6 @@ Void_X_Walker - atum and WorldPreview mods
   [latest release]: <https://github.com/pjagada/spawn-juicer/releases/latest>
   [latest version]: <https://github.com/pjagada/spawn-juicer/releases/latest>
   [the setup video]: <https://youtu.be/0xAHMW93MQw>
-  [My blacklist]: <https://cdn.discordapp.com/attachments/846477312438566934/919571471737704508/blacklist.txt>
-  [LeonToast's blacklist]: <https://cdn.discordapp.com/attachments/854508085422325770/859798746098696222/blacklist.txt>
   [atum]: <https://github.com/VoidXWalker/atum/releases/latest>
-  [this resource pack]: <https://cdn.discordapp.com/attachments/755882336209338388/970560304763273297/mutesounds.zip>
   [#public-help]: <https://discord.com/channels/755878212571103392/861679137805434930>
   [SSG Discord]: <https://discord.gg/EFvygzt>
