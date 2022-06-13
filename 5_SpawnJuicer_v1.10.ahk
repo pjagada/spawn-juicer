@@ -96,8 +96,12 @@ for k, saves_directory in SavesDirectories
   }
 }
 
-global freezePreviewKey := getKey("key_Freeze Preview")
-global leavePreviewKey := getKey("key_Leave Preview")
+global freezePreviewKey := ""
+global leavePreviewKey := ""
+if (modExist("worldpreview", 1)) {
+  freezePreviewKey := getKey("key_Freeze Preview")
+  leavePreviewKey := getKey("key_Leave Preview")
+}
 global fullscreenKey := getKey("key_key.fullscreen")
 global commandKey := getKey("key_key.command")
 

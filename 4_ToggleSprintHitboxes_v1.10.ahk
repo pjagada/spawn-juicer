@@ -74,7 +74,10 @@ for k, saves_directory in SavesDirectories
 }
 
 global sprintButton := getKey("key_key.sprint")
-global freezePreviewKey := getKey("key_Freeze Preview")
+global freezePreviewKey := ""
+if (modExist("worldpreview", 1)) {
+  freezePreviewKey := getKey("key_Freeze Preview")
+}
 
 Loop, %instances%
 {

@@ -267,6 +267,7 @@ readLine(option, idx)
       return value
     }
   }
+  Logg("could not find option " . option . " in options.txt of " . optionsFile)
   MsgBox, Could not find option in options.txt
   ExitApp
 }
