@@ -1,6 +1,7 @@
 #NoEnv
 #SingleInstance Force
 #include functions.ahk
+#include 2_options.ahk
 
 ; Make sure all instances are unfrozen, and in order on the front of the taskbar
 ; Also have LiveSplit open :)
