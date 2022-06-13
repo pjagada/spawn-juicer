@@ -1,5 +1,6 @@
 #NoEnv
 #SingleInstance Force
+#Include 2_options.ahk
 #include functions.ahk
 ;#Warn
 
@@ -8,12 +9,7 @@ SetWinDelay, 1
 SetTitleMatchMode, 2
 
 ; all instances must be on title screen or in pause menu.
-global toggleSprint := True ; will not do anything if hold sprint is used, otherwise it will toggle your sprint
-global sprintButton := "CapsLock" ; list of keys here: https://www.autohotkey.com/docs/KeyList.htm
-global hitboxes := True ; will toggle hitboxes
-global logging = False ; turn this to True to generate logs in macro_logs.txt and DebugView; don't keep this on True because it'll slow things down
 
-; Don't configure these, scroll to the very bottom to configure hotkeys
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
 global currInst := -1
 global pauseAuto := False

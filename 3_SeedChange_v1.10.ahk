@@ -1,11 +1,8 @@
 #NoEnv
 #SingleInstance Force
+#Include 2_options.ahk
 #include functions.ahk
 ;#Warn
-
-; puts the seed in all open instances of minecraft with atum (make sure they're all on the title screen)
-global SEED := "8398967436125155523"
-global logging := false
 
 SetKeyDelay, 0
 SetWinDelay, 1
