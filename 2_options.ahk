@@ -23,9 +23,9 @@ global coop := False ; will automatically open to LAN and prepare "/time set 0" 
 
 ; Autoresetter Options:
 ; The autoresetter will automatically reset if your spawn is greater than a certain number of blocks away from a certain point (ignoring y)
-global centerPointX := -201.5 ; this is the x coordinate of that certain point
-global centerPointZ := 229.5 ; this is the z coordinate of that certain point
-global radius := 18 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
+global centerPointX := -217.5 ; this is the x coordinate of that certain point
+global centerPointZ := 226.5 ; this is the z coordinate of that certain point
+global radius := 25 ; if this is 10 for example, the autoresetter will not reset if you are within 10 blocks of the point specified above. Set this smaller for better spawns but more resets
 ; if you would only like to reset the blacklisted spawns or don't want automatic resets, then just set this number really large (1000 should be good enough), and if you would only like to play out whitelisted spawns, then just make this number negative
 global giveAngle := False ; Give the angle (TTS) that you need to travel at to get to your starting point
 
