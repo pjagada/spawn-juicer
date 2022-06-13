@@ -1,7 +1,6 @@
 ; Added in v1.10:
 global SEED := "8398967436125155523" ; for seed change script
 global toggleSprint := True ; for toggle sprint/hitboxes script: will not do anything if hold sprint is used, otherwise it will toggle your sprint
-global sprintButton := "CapsLock" ; for toggle sprint/hitboxes script: list of keys here: https://www.autohotkey.com/docs/KeyList.htm
 global hitboxes := True ; for toggle sprint/hitboxes script: will toggle hitboxes
 
 ; Added in v1.9:

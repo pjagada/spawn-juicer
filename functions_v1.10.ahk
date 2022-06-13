@@ -271,6 +271,21 @@ readLine(option, idx)
   ExitApp
 }
 
+getKey(function)
+{
+   Logg("finding key for function " . function)
+   rawKey := readLine(function, 1)
+   for i, mcDir in SavesDirectories {
+      if (rawKey != readLine(function, i)) {
+         Logg("instance " . i . " has a bind of " . readLine(function, i) . ", but instance 1's is " . rawKey)
+         MsgBox, Your bind for %function% is not the same in all your instances. Make sure it is, then restart the script.
+         ExitApp
+      }
+   }
+   mcKey := mc_key_to_ahk_key(rawKey)
+   Logg("the key is " . rawKey . ", which is " . mcKey)
+   return mcKey
+}
 
 getVersion()
 {
@@ -365,7 +380,7 @@ Perch()
   }
   Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
    OpenToLAN()
-   Send, /
+   Send, {%commandKey%}
    Sleep, 70
    SendInput, data merge entity @e[type=ender_dragon,limit=1] {{}DragonPhase:2{}}
    Send, {enter}
@@ -380,7 +395,7 @@ GiveSword()
   }
   Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
    OpenToLAN()
-   Send, /
+   Send, {%commandKey%}
    Sleep, 70
    SendInput, give @s minecraft:netherite_sword{{}Enchantments:[{{}id:"minecraft:sharpness",lvl:32727{}}]{}}
    Send, {enter}
@@ -391,7 +406,7 @@ Coop(idx)
   Logg("doing co-op stuff for instance " . idx)
   PausedOpenToLAN(idx)
   thePID := PIDs[idx]
-  ControlSend, ahk_parent, /, ahk_pid %thePID%
+  ControlSend, ahk_parent, {%commandKey%}, ahk_pid %thePID%
   Sleep, 70
   if WinActive("ahk_pid" thePID) {
     SendInput, time set 0

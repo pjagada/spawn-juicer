@@ -73,6 +73,9 @@ for k, saves_directory in SavesDirectories
     }
 }
 
+global sprintButton := getKey("key_key.sprint")
+global freezePreviewKey := getKey("key_Freeze Preview")
+
 Loop, %instances%
 {
   the_State := states[A_Index]
@@ -160,7 +163,7 @@ HandleState(pid, idx) {
   {
     theState := states[idx]
     Logg("Instance " . idx . " has started preview")
-    ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
+    ControlSend, ahk_parent, {Blind}{%freezePreviewKey%}, ahk_pid %pid%
   }
   else if (states[idx] == WAITING_FINAL_SAVE)
   {

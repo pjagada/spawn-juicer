@@ -96,6 +96,11 @@ for k, saves_directory in SavesDirectories
   }
 }
 
+global freezePreviewKey := getKey("key_Freeze Preview")
+global leavePreviewKey := getKey("key_Leave Preview")
+global fullscreenKey := getKey("key_key.fullscreen")
+global commandKey := getKey("key_key.command")
+
 if (affinity) {
   Logg("Setting high affinity for all instances since starting script")
   for jay, tmp_pid in PIDs {
@@ -242,14 +247,14 @@ HandleResetState(pid, idx) {
     Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
       Logg("Instance " . idx . " has a good spawn so switching to state 7")
-      ControlSend, ahk_parent, {Blind}j, ahk_pid %pid%
+      ControlSend, ahk_parent, {Blind}{%freezePreviewKey%}, ahk_pid %pid%
       resetStates[idx] := GOOD_SPAWN ; good spawn unfrozen
     }
     else
     {
       Logg("Instance " . idx . " has a bad spawn so switching to state 2")
       if (modExist("worldpreview", idx)) {
-        ControlSend, ahk_parent, {Blind}h, ahk_pid %pid%
+        ControlSend, ahk_parent, {Blind}{%leavePreviewKey%}, ahk_pid %pid%
         resetStates[idx] := LOADING
       } else {
         ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
@@ -484,7 +489,7 @@ SwitchInstance(idx)
     currScene := idx
   }
   if (fullscreen) {
-    ControlSend, ahk_parent, {Blind}{F11}, ahk_pid %thePID%
+    ControlSend, ahk_parent, {Blind}{%fullscreenKey%}, ahk_pid %thePID%
     sleep, %fullScreenDelay%
   }
   ShowF3()
@@ -524,7 +529,7 @@ Reset(state := 0)
   Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
   idx := GetActiveInstanceNum()
   if (inFullscreen(idx)) {
-    send, {F11}
+    send, {%fullscreenKey%}
     sleep, %fullScreenDelay%
   }
   playerState := state ; needs spawn or keep resetting
