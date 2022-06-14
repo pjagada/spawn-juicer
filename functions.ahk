@@ -637,3 +637,50 @@ speak_async(speakString)
    Logg("saying " . speakString . " with rate of " . speakRate)
    Run, %A_ScriptDir%\speak.ahk "%speakString%" "%speakRate%", %A_ScriptDir%
 }
+
+check_fov(idx)
+{
+  Logg("is current FOV equal to " . FOV . "?")
+  oFOV := (FOV - 70) / 40
+  Logg("options file FOV would be " . oFOV)
+  decimalFOV := readLine("fov", idx)
+  Logg("current FOV is " . decimalFOV)
+  return (decimalFOV != oFOV)
+}
+
+check_rd(idx) 
+{
+  Logg("is current RD equal to " . renderDistance . "?")
+  currentRD := readLine("renderDistance", idx)
+  Logg("current RD is " . currentRD)
+  return (currentRD != renderDistance)
+}
+
+change_settings(fovChange, rdChange, idx)
+{
+  if (!(fovChange || rdChange)) {
+    Logg("no change needed in fov/rd")
+    return
+  }
+  thePID := PIDs[idx]
+  WinGetTitle, title, ahk_pid %thePID%
+  if (IsInGame(title)) {
+   ControlSend,, {Blind}{Tab 6}, ahk_pid %thePID%
+  } else {
+   ControlSend,, {Blind}{Tab 5}, ahk_pid %thePID%
+  }
+  ControlSend,, {enter}{Tab}, ahk_pid %thePID%
+  if (fovChange) {
+   FOVPresses := ceil((110-FOV)*1.7875)
+   ControlSend,, {Blind}{Right 150}{Left %FOVPresses%}, ahk_pid %thePID%
+  }
+  if (rdChange) {
+   ControlSend,, {Blind}{Tab 5}{Enter}, ahk_pid %thePID%
+   ControlSend,, {Blind}{Shift down}p{Shift up}, ahk_pid %thePID%
+   RDPresses := ceil(4.7 * renderDistance) - 8
+   ControlSend,, {Blind}{Tab 4}{Enter}, ahk_pid %thePID%
+   ControlSend,, {Blind}{Left 150}{Right %RDPresses%}
+   ControlSend,, {Blind}{Esc}, ahk_pid %thePID%
+  }
+  ControlSend,, {Blind}{Esc 2}, ahk_pid %thePID%
+}

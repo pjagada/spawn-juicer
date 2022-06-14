@@ -1,3 +1,8 @@
+; Added in v1.11:
+global resetSettings := True
+global FOV := 80 ; 110 for quake pro
+global renderDistance := 2
+
 ; Added in v1.10:
 global SEED := "8398967436125155523" ; for seed change script
 global toggleSprint := True ; for toggle sprint/hitboxes script: will not do anything if hold sprint is used, otherwise it will toggle your sprint
