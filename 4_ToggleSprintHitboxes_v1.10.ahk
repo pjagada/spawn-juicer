@@ -322,22 +322,6 @@ in_world(idx) {
   return IsInGame(title)
 }
 
-on_title(idx)
-{
-  mcDirectory := SavesDirectories[idx]
-  Logg("checking if in world, mcDirectory is " . mcDirectory)
-  lastWorld := getMostRecentFile(mcDirectory)
-  Logg("last world is " . lastWorld)
-  lockFile := lastWorld . "\session.lock"
-  Logg("checking lockFile " . lockFile)
-  FileRead, sessionlockfile, %lockFile%
-  if (ErrorLevel = 0)
-  {
-    return true
-  }
-  return false
-}
-
 SetTitles() {
   for g, thePID in PIDs {
     WinSetTitle, ahk_pid %thePID%, , Minecraft* - Instance %g%

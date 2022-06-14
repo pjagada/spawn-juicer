@@ -2,6 +2,7 @@
 global resetSettings := True
 global FOV := 80 ; 110 for quake pro
 global renderDistance := 2
+global shiftPDelay := 200 ; increase if render distance isn't being reset
 
 ; Added in v1.10:
 global SEED := "8398967436125155523" ; for seed change script

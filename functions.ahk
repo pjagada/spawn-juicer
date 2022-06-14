@@ -663,24 +663,56 @@ change_settings(fovChange, rdChange, idx)
     return
   }
   thePID := PIDs[idx]
-  WinGetTitle, title, ahk_pid %thePID%
-  if (IsInGame(title)) {
+  if (!(on_title(idx))) {
+   Logg("6 tabs for in game")
    ControlSend,, {Blind}{Tab 6}, ahk_pid %thePID%
   } else {
+   Logg("5 tabs for title screen")
    ControlSend,, {Blind}{Tab 5}, ahk_pid %thePID%
   }
   ControlSend,, {enter}{Tab}, ahk_pid %thePID%
   if (fovChange) {
+   Logg("doing fov change")
    FOVPresses := ceil((110-FOV)*1.7875)
    ControlSend,, {Blind}{Right 150}{Left %FOVPresses%}, ahk_pid %thePID%
   }
   if (rdChange) {
-   ControlSend,, {Blind}{Tab 5}{Enter}, ahk_pid %thePID%
+   Logg("doing rd change")
+   if (on_title(idx)) {
+      Logg("4 tabs for title screen")
+      ControlSend,, {Blind}{Tab 4}{Enter}, ahk_pid %thePID%
+   } else {
+      Logg("5 tabs for in game")
+      ControlSend,, {Blind}{Tab 5}{Enter}, ahk_pid %thePID%
+   }
+   ;Sleep, 1000
+   Logg("right before shift p")
+   SetKeyDelay, %shiftPDelay%
    ControlSend,, {Blind}{Shift down}p{Shift up}, ahk_pid %thePID%
+   SetKeyDelay, 0
+   Logg("right after shift p")
+   ;Sleep, 1000
    RDPresses := ceil(4.7 * renderDistance) - 8
+   Logg("rd presses: " . RDPresses)
    ControlSend,, {Blind}{Tab 4}{Enter}, ahk_pid %thePID%
-   ControlSend,, {Blind}{Left 150}{Right %RDPresses%}
+   ControlSend,, {Blind}{Left 150}{Right %RDPresses%}, ahk_pid %thePID%
    ControlSend,, {Blind}{Esc}, ahk_pid %thePID%
   }
   ControlSend,, {Blind}{Esc 2}, ahk_pid %thePID%
+}
+
+on_title(idx)
+{
+  mcDirectory := SavesDirectories[idx]
+  Logg("checking if in world, mcDirectory is " . mcDirectory)
+  lastWorld := getMostRecentFile(mcDirectory)
+  Logg("last world is " . lastWorld)
+  lockFile := lastWorld . "\session.lock"
+  Logg("checking lockFile " . lockFile)
+  FileRead, sessionlockfile, %lockFile%
+  if (ErrorLevel = 0)
+  {
+    return true
+  }
+  return false
 }
