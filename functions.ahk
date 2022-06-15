@@ -283,6 +283,11 @@ getKey(function)
          ExitApp
       }
    }
+   if (rawKey == "key.keyboard.grave.accent") {
+      Logg("grave accent key used for " . function)
+      MsgBox, Your control for %function% is the grave accent key which doesn't work with macros, so you will need to change it and restart the script.
+      ExitApp
+   }
    mcKey := mc_key_to_ahk_key(rawKey)
    Logg("the key is " . rawKey . ", which is " . mcKey)
    return mcKey
