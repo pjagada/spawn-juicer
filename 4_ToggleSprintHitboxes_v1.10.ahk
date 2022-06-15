@@ -24,7 +24,6 @@ global reachedSave := []
 global joinDelay := 2000 ; increase if doesnt join world
 
 GetAllPIDs()
-SetTitles()
 
 tmptitle := ""
 for i, tmppid in PIDs{

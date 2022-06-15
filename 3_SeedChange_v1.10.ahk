@@ -18,7 +18,6 @@ global PIDs := []
 global titles := []
 
 GetAllPIDs()
-SetTitles()
 
 tmptitle := ""
 for i, tmppid in PIDs{
