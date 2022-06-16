@@ -788,6 +788,11 @@ GetAllPIDs()
   ; Generate saves and order PIDs
   Loop, %instances% {
     saves := GetMcDir(rawPIDs[A_Index])
+    if (InStr(saves, " ")) {
+      Logg("space in " . saves)
+      MsgBox, There is a space in your Minecraft directory of %saves%. If your MultiMC path has a space in it, then move it to a place that doesn't. If your instance name has a space in it, remake the instance without a space. Then restart the script.
+      ExitApp
+    }
     if (num := GetInstanceNumberFromSaves(saves)) == -1
       ExitApp
     PIDS[num] := rawPIDs[A_Index]
