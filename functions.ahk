@@ -62,6 +62,10 @@ getMostRecentFile(mcDirectory)
 			mostRecentFile := A_LoopFileLongPath
 		}
 	}
+   if (counter == 0) {
+      Logg("no saves in saves folder " . savesDirectory)
+      return "NO_SAVE"
+   }
    recentFile := mostRecentFile
    return (recentFile)
 }
@@ -711,6 +715,9 @@ on_title(idx)
   mcDirectory := SavesDirectories[idx]
   Logg("checking if in world, mcDirectory is " . mcDirectory)
   lastWorld := getMostRecentFile(mcDirectory)
+  if (lastWorld == "NO_SAVE") { ; empty saves folder
+    return true
+  }
   Logg("last world is " . lastWorld)
   lockFile := lastWorld . "\session.lock"
   Logg("checking lockFile " . lockFile)
