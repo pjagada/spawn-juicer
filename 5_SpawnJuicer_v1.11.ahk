@@ -17,6 +17,8 @@ SetTitleMatchMode, 2
 
 #Include 2_options.ahk
 
+startup_log()
+
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
 global currInst := -1
 global currScene := -1
@@ -405,23 +407,6 @@ GetInstanceNumberFromSaves(saves) {
   else
     FileRead, num, %numFile%
 return num
-}
-
-GetAllPIDs()
-{
-  global SavesDirectories
-  global PIDs
-  global instances := GetInstanceTotal()
-  ;OutputDebug, [macro] %instances% instances
-  ; Generate saves and order PIDs
-  Loop, %instances% {
-    saves := GetMcDir(rawPIDs[A_Index])
-    if (num := GetInstanceNumberFromSaves(saves)) == -1
-      ExitApp
-    PIDS[num] := rawPIDs[A_Index]
-    SavesDirectories[num] := saves
-    ;OutputDebug, [macro] saves: %saves% index: %A_Index%
-  }
 }
 
 SetAffinity(pid, mask) {

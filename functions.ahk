@@ -728,3 +728,58 @@ on_title(idx)
   }
   return false
 }
+
+startup_log()
+{
+   Logg("Running script " . A_ScriptName . " on ahk version " . A_AhkVersion)
+   Logg("Options are:")
+   Logg("  resetSettings: " . resetSettings)
+   Logg("  FOV: " . FOV)
+   Logg("  renderDistance: " . renderDistance)
+   Logg("  shiftPDelay: " . shiftPDelay)
+   Logg("  SEED: " . SEED)
+   Logg("  toggleSprint: " . toggleSprint)
+   Logg("  hitboxes: " . hitboxes)
+   Logg("  TTS_speed: " . TTS_speed)
+   Logg("  hotkeyCooldown: " . hotkeyCooldown)
+   Logg("  unpauseOnSwitch: " . unpauseOnSwitch)
+   Logg("  fullscreen: " . fullscreen)
+   Logg("  playSound: " . playSound)
+   Logg("  disableTTS: " . disableTTS)
+   Logg("  fullScreenDelay: " . fullScreenDelay)
+   Logg("  restartDelay: " . restartDelay)
+   Logg("  maxLoops: " . maxLoops)
+   Logg("  f3showDuration: " . f3showDuration)
+   Logg("  f3showDelay: " . f3showDelay)
+   Logg("  logging: " . logging)
+   Logg("  kryptonChecker: " . kryptonChecker)
+   Logg("  coop: " . coop)
+   Logg("  centerPointX: " . centerPointX)
+   Logg("  centerPointZ: " . centerPointZ)
+   Logg("  radius: " . radius)
+   Logg("  giveAngle: " . giveAngle)
+   Logg("  instanceFreezing: " . instanceFreezing)
+   Logg("  freeMemory: " . freeMemory)
+   Logg("  affinity: " . affinity)
+   Logg("  lowBitmaskMultiplier: " . lowBitmaskMultiplier)
+   Logg("  obsDelay: " . obsDelay)
+   Logg("  wallSwitch: " . wallSwitch)
+}
+
+GetAllPIDs()
+{
+  global SavesDirectories
+  global PIDs
+  global instances := GetInstanceTotal()
+  Logg(instances . " instances found")
+  ; Generate saves and order PIDs
+  Loop, %instances% {
+    saves := GetMcDir(rawPIDs[A_Index])
+    if (num := GetInstanceNumberFromSaves(saves)) == -1
+      ExitApp
+    PIDS[num] := rawPIDs[A_Index]
+    SavesDirectories[num] := saves
+    thePID := PIDs[num]
+    Logg("Instance " . num . " has mc directory of " . saves . " and PID of " . thePID)
+  }
+}

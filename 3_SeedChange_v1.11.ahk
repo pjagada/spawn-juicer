@@ -8,6 +8,8 @@ SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2
 
+startup_log()
+
 ; Don't configure these, scroll to the very bottom to configure hotkeys
 global currInst := -1
 global pauseAuto := False
@@ -130,21 +132,6 @@ GetInstanceNumberFromSaves(saves) {
   else
     FileRead, num, %numFile%
 return num
-}
-
-GetAllPIDs()
-{
-  global SavesDirectories
-  global PIDs
-  global instances := GetInstanceTotal()
-  ; Generate saves and order PIDs
-  Loop, %instances% {
-    saves := GetMcDir(rawPIDs[A_Index])
-    if (num := GetInstanceNumberFromSaves(saves)) == -1
-      ExitApp
-    PIDS[num] := rawPIDs[A_Index]
-    SavesDirectories[num] := saves
-  }
 }
 
 SetTitles() {
