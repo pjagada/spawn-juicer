@@ -8,6 +8,8 @@ SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2
 
+startup_log()
+
 ; all instances must be on title screen or in pause menu.
 
 EnvGet, threadCount, NUMBER_OF_PROCESSORS
@@ -296,23 +298,6 @@ GetInstanceNumberFromSaves(saves) {
   else
     FileRead, num, %numFile%
 return num
-}
-
-GetAllPIDs()
-{
-  global SavesDirectories
-  global PIDs
-  global instances := GetInstanceTotal()
-  ;OutputDebug, [macro] %instances% instances
-  ; Generate saves and order PIDs
-  Loop, %instances% {
-    saves := GetMcDir(rawPIDs[A_Index])
-    if (num := GetInstanceNumberFromSaves(saves)) == -1
-      ExitApp
-    PIDS[num] := rawPIDs[A_Index]
-    SavesDirectories[num] := saves
-    ;OutputDebug, [macro] saves: %saves% index: %A_Index%
-  }
 }
 
 in_world(idx) {
