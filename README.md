@@ -21,13 +21,7 @@ Reset macro for single and multi-instance Minecraft Java Edition set seed speedr
 - Give angle to initial destination through TTS at run start
 
 ### Planned features and fixes
-- Settings reset
-- Practice mode (go to instance 1 title screen)
-- fix blacklisting issue
 - add crossbow gun thing (full hotbar and sound pack)
-- fix `getMostRecentFile()` to work when there's no world in the instance
-- check for spaces in instance path
-- better setup guide
 
 ## Setup instructions
 
