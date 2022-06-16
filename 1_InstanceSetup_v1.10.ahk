@@ -29,7 +29,7 @@ GetInstanceTotal() {
   return total
 }
 
-GetAllPIDs()
+GetAllPIDs_setup()
 {
   global SavesDirectories
   global PIDs
@@ -47,7 +47,7 @@ GetAllPIDs()
   }
 }
 
-GetAllPIDs()
+GetAllPIDs_setup()
 Loop, %instances% { 
   numFile := SavesDirectories[A_Index] . "instanceNumber.txt"
   if (FileExist(numFile))
