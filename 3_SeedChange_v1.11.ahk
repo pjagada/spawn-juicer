@@ -28,6 +28,8 @@ for i, tmppid in PIDs{
   WinSet, AlwaysOnTop, Off, ahk_pid %tmppid%
 }
 
+show_all_mods()
+
 for k, saves_directory in SavesDirectories
 {
 	check_atum(k)

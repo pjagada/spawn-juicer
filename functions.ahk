@@ -342,6 +342,19 @@ modExist(mod, idx)
   return false
 }
 
+show_all_mods()
+{
+   Logg("showing all mods:")
+   for i, mcDir in SavesDirectories {
+      modsFolder := StrReplace(mcDir, "saves", "mods") . "mods"
+      Logg("  Instance " . i . ": " . modsFolder)
+      Loop, Files, %modsFolder%\*.*, F
+      {
+         Logg("    " . A_LoopFileName)
+      }
+   }
+}
+
 WaitForHost(savesDirectory)
 {
    logFile := StrReplace(savesDirectory, "saves", "logs\latest.log") . "logs\latest.log"

@@ -74,6 +74,8 @@ for k, saves_directory in SavesDirectories
     }
 }
 
+show_all_mods()
+
 global sprintButton := getKey("key_key.sprint")
 global freezePreviewKey := ""
 if (modExist("worldpreview", 1)) {

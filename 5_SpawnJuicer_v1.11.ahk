@@ -111,6 +111,8 @@ for k, saves_directory in SavesDirectories
   }
 }
 
+show_all_mods()
+
 global freezePreviewKey := ""
 global leavePreviewKey := ""
 if (modExist("worldpreview", 1)) {
