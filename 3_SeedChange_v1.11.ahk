@@ -103,27 +103,6 @@ change_seed(idx)
 	ControlSend, ahk_parent, {Shift Up}{Ctrl Up}, ahk_pid %thePID%
 }
 
-
-
-
-
-
-GetInstanceTotal() {
-  idx := 1
-  global rawPIDs
-  WinGet, all, list
-  Loop, %all%
-  {
-    WinGet, thePID, PID, % "ahk_id " all%A_Index%
-    WinGetTitle, title, ahk_pid %thePID%
-    if (InStr(title, "Minecraft*")) {
-      rawPIDs[idx] := thePID
-      idx += 1
-    }
-  }
-return rawPIDs.MaxIndex()
-}
-
 GetInstanceNumberFromSaves(saves) {
   numFile := saves . "instanceNumber.txt"
   num := -1

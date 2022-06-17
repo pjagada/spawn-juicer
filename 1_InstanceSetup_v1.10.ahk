@@ -16,7 +16,7 @@ global SavesDirectories := []
 
 
 
-GetInstanceTotal() {
+GetInstanceTotal_setup() {
   total := 0
   WinGet, all, list
   Loop, %all%
@@ -33,7 +33,7 @@ GetAllPIDs_setup()
 {
   global SavesDirectories
   global PIDs
-  global instances := GetInstanceTotal()
+  global instances := GetInstanceTotal_setup()
   WinActivate, LiveSplit
   Loop, %instances% {
     Send, {RWin Down}{%A_Index%}{RWin Up}

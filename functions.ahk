@@ -801,3 +801,19 @@ GetAllPIDs()
     Logg("Instance " . num . " has mc directory of " . saves . " and PID of " . thePID)
   }
 }
+
+GetInstanceTotal() {
+  idx := 1
+  global rawPIDs
+  WinGet, all, list
+  Loop, %all%
+  {
+    WinGet, thePID, PID, % "ahk_id " all%A_Index%
+    WinGetTitle, title, ahk_pid %thePID%
+    if (InStr(title, "Minecraft*")) {
+      rawPIDs[idx] := thePID
+      idx += 1
+    }
+  }
+return rawPIDs.MaxIndex()
+}

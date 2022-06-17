@@ -382,23 +382,6 @@ HasGameSaved(idx) {
 return saved
 }
 
-GetInstanceTotal() {
-  idx := 1
-  global rawPIDs
-  WinGet, all, list
-  Loop, %all%
-  {
-    WinGet, thePID, PID, % "ahk_id " all%A_Index%
-    WinGetTitle, title, ahk_pid %thePID%
-    if (InStr(title, "Minecraft*")) {
-      rawPIDs[idx] := thePID
-      ;OutputDebug, [macro] idx: %idx%, title: %title%, pid: %pid%
-      idx += 1
-    }
-  }
-return rawPIDs.MaxIndex()
-}
-
 GetInstanceNumberFromSaves(saves) {
   numFile := saves . "instanceNumber.txt"
   num := -1
