@@ -103,18 +103,6 @@ change_seed(idx)
 	ControlSend, ahk_parent, {Shift Up}{Ctrl Up}, ahk_pid %thePID%
 }
 
-GetInstanceNumberFromSaves(saves) {
-  numFile := saves . "instanceNumber.txt"
-  num := -1
-  if (saves == "" || saves == ".minecraft" || saves == ".minecraft\" || saves == ".minecraft/") ; Misread something
-    Reload
-  if (!FileExist(numFile))
-    MsgBox, Missing instanceNumber.txt in %saves%. Run the setup script (see instructions)
-  else
-    FileRead, num, %numFile%
-return num
-}
-
 SetTitles() {
   for g, thePID in PIDs {
     WinSetTitle, ahk_pid %thePID%, , Minecraft* - Instance %g%

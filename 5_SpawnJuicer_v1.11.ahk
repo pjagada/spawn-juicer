@@ -382,18 +382,6 @@ HasGameSaved(idx) {
 return saved
 }
 
-GetInstanceNumberFromSaves(saves) {
-  numFile := saves . "instanceNumber.txt"
-  num := -1
-  if (saves == "" || saves == ".minecraft" || saves == ".minecraft\" || saves == ".minecraft/") ; Misread something
-    Reload
-  if (!FileExist(numFile))
-    MsgBox, Missing instanceNumber.txt in %saves%. Run the setup script (see instructions)
-  else
-    FileRead, num, %numFile%
-return num
-}
-
 SetAffinity(pid, mask) {
   hProc := DllCall("OpenProcess", "UInt", 0x0200, "Int", false, "UInt", pid, "Ptr")
   DllCall("SetProcessAffinityMask", "Ptr", hProc, "Ptr", mask)
