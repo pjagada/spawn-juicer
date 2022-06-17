@@ -252,6 +252,7 @@ HandleResetState(pid, idx) {
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title))
     {
+      Logg("Instance " . idx . " stuck in the TIME_BETWEEN_WORLDS state")
       return
     }
     Logg("Instance " . idx . " exited world so switching to state 4")
