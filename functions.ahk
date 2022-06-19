@@ -14,7 +14,7 @@ RunHide(Command)
   }
   catch e
   {
-    MsgBox, Error running command
+    MsgBox, Error running command, see troubleshooting guide
     ExitApp
   }
   Result := Exec.StdOut.ReadAll()
