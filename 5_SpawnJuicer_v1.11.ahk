@@ -35,6 +35,7 @@ global reachedSave := []
 global xCoords := []
 global zCoords := []
 global distances := []
+global leftInstance := []
 global beforeFreezeDelay := 0 ; increase if doesnt join world
 global playerState := 0 ; needs spawn
 global highBitMask := (2 ** threadCount) - 1
@@ -87,6 +88,7 @@ for eye, tmp_pid in PIDs{
   startTimes.Push(A_TickCount)
   reachedSave.Push(false)
   WinSet, AlwaysOnTop, Off, ahk_pid %tmp_pid%
+  leftInstance.Push(0)
 }
 global version = getVersion()
 
@@ -245,6 +247,9 @@ HandleResetState(pid, idx) {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
+    leftInstance[idx] := A_TickCount
+    leftInstanceTime := leftInstance[idx]
+    Logg("set instance " . idx . " left instance time to " . leftInstanceTime)
   }
   else if (resetStates[idx] == TIME_BETWEEN_WORLDS) ; waiting to enter time between worlds
   {
@@ -253,6 +258,13 @@ HandleResetState(pid, idx) {
     if (IsInGame(title))
     {
       Logg("Instance " . idx . " stuck in the TIME_BETWEEN_WORLDS state")
+      timeSinceLeftInstance := A_TickCount - leftInstance[idx]
+      Logg("time since left instance " . idx . " is " . timeSinceLeftInstance)
+      if (timeSinceLeftInstance > 150) ; instance is likely stuck in an unpause state
+      {
+        Logg("that time is greater than 150 ms so switching to NEEDS_TO_RESET state")
+        resetStates[idx] := NEEDS_TO_RESET
+      }
       return
     }
     Logg("Instance " . idx . " exited world so switching to state 4")
