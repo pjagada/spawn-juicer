@@ -407,6 +407,17 @@ Perch()
    Sleep, 70
    SendInput, data merge entity @e[type=ender_dragon,limit=1] {{}DragonPhase:2{}}
    Send, {enter}
+   if (forcePerchDisplay) {
+      Logg("showing force perch display")2
+      Send, {%commandKey%}
+      Sleep, 70
+      SendInput, title @p times 0 40 10
+      Send, {enter}
+      Send, {%commandKey%}
+      Sleep, 70
+      SendInput, title @p title "Forced Perch"
+      Send, {enter}
+   }
 }
 
 GiveSword()
