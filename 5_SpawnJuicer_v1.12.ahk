@@ -528,7 +528,17 @@ Reset(state := 0)
     return
   }
   Logg("last hotkey was pressed " . timeSinceLastHotkey . " ms ago, which is more than the hotkey cooldown of " . hotkeyCooldown . ", so gonna do something")
+  Logg("reset hotkey pressed")
   idx := GetActiveInstanceNum()
+  Logg("active instance is " . idx)
+  Logg("current instance is " . currInst)
+  if (idx < 0) {
+    idx := currInst
+  }
+  if (idx < 0) {
+    Logg("no spawn yet to reset")
+    return
+  }
   if (inFullscreen(idx)) {
     send, {%fullscreenKey%}
     sleep, %fullScreenDelay%
