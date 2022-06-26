@@ -317,6 +317,7 @@ PauseOnLostFocus(idx) ;used on script startup
 
 inFullscreen(idx)
 {
+   Logg("checking if instance " . idx . " is in fullscreen")
   fullscreenLine := readLine("fullscreen", idx)
    if (InStr(fullscreenLine, "true"))
       return 1
@@ -452,6 +453,7 @@ Coop(idx)
 GetActiveInstanceNum() {
   WinGet, thePID, PID, A
   WinGetTitle, title, ahk_pid %thePID%
+  Logg("active window is " . title)
   if (IsInGame(title)) {
     for r, temppid in PIDs {
       if (temppid == thePID)
