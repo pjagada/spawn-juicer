@@ -151,7 +151,7 @@ CtrlA(thePID, n := 1)
 
 check_title_screen(idx)
 {
-	if (inWorld(idx))
+	if (!(on_title(idx)))
 	{
 		MsgBox, Instance %idx% is not on the title screen. Put all instances on the title screen and restart the script.
 		ExitApp
