@@ -8,7 +8,7 @@ SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2
 
-MsgBox, This is not an error message. After you exit this box, make sure you are in a world and unpaused with gamerule doImmediateRespawn as True and cheats on. Press Home to start the loop, and End to end the loop.
+MsgBox, This is not an error message. After you exit this box, make sure you are in a world and unpaused with gamerule doImmediateRespawn as True and cheats on. Press Home to start the loop, and hold End to end the loop.
 
 DisplaySpawns()
 {
