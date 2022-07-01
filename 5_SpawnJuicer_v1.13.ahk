@@ -42,29 +42,14 @@ global highBitMask := (2 ** threadCount) - 1
 global lowBitMask := (2 ** Ceil(threadCount * lowBitmaskMultiplier)) - 1
 
 global RUNNING := 0
-global NEEDS_TO_RESET := 1
-global CHECK_SETTINGS := 2
-global EXIT_WORLD := 3
-global TIME_BETWEEN_WORLDS := 4
-global LOADING := 5
-global GET_SPAWN := 6
-global CHECK_SPAWN := 7
-global GOOD_SPAWN := 8
-global WAITING_FOR_FREEZE := 9
-global FROZEN := 10
-
-if (resetSettings) {
-  if (!(FOV >= 30) && (FOV <= 110)) {
-    Logg("FOV is " . FOV . ", so exiting script")
-    MsgBox, FOV must be between 30 and 110. Change global FOV or global resetSettings, then start the script again.
-    ExitApp
-  }
-  if (!(renderDistance >= 2 && renderDistance <= 32)) {
-    Logg("RD is " . renderDistance . ", so exiting script")
-    MsgBox, renderDistance must be between 2 and 32. Change global renderDistance or global resetSettings, then start the script again.
-    ExitApp
-  }
-}
+global NEEDS_TO_RESET := RUNNING + 1
+global TIME_BETWEEN_WORLDS := NEEDS_TO_RESET + 1
+global LOADING := TIME_BETWEEN_WORLDS + 1
+global GET_SPAWN := LOADING + 1
+global CHECK_SPAWN := GET_SPAWN + 1
+global GOOD_SPAWN := CHECK_SPAWN + 1
+global WAITING_FOR_FREEZE := GOOD_SPAWN + 1
+global FROZEN := WAITING_FOR_FREEZE + 1
 
 UnsuspendAll()
 sleep, %restartDelay%
@@ -80,7 +65,7 @@ tmptitle := ""
 for eye, tmp_pid in PIDs{
   WinGetTitle, tmptitle, ahk_pid %tmp_pid%
   titles.Push(tmptitle)
-  resetStates.push(CHECK_SETTINGS)
+  resetStates.push(NEEDS_TO_RESET)
   resetTimes.push(0)
   xCoords.Push(0)
   zCoords.Push(0)
@@ -94,9 +79,9 @@ global version = getVersion()
 
 for k, saves_directory in SavesDirectories
 {
-    if (!(modExist("atum", k)))
+    if (!(modExist("atum-1.1", k)))
     {
-      MsgBox, Instance %k% does not have atum installed. Install atum in all your instances, restart them, then start the script again.
+      MsgBox, Instance %k% does not have atum 1.1+ installed. Install atum 1.1+ in all your instances, restart them, then start the script again.
       ExitApp
     }
 	if (PauseOnLostFocus(k))
@@ -116,11 +101,10 @@ for k, saves_directory in SavesDirectories
 show_all_mods()
 
 global freezePreviewKey := ""
-global leavePreviewKey := ""
 if (modExist("worldpreview", 1)) {
   freezePreviewKey := getKey("key_Freeze Preview")
-  leavePreviewKey := getKey("key_Leave Preview")
 }
+global createWorldKey := getKey("key_Create New World")
 global fullscreenKey := getKey("key_key.fullscreen")
 global commandKey := getKey("key_key.command")
 
@@ -227,26 +211,7 @@ HandleResetState(pid, idx) {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     WinSet, AlwaysOnTop, Off, ahk_pid %pid%
-    ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-  }
-  else if (resetStates[idx] == CHECK_SETTINGS) {
-    if (!(resetSettings)) {
-      Logg("not resetting settings so going to exit world in instance " . idx)
-      resetStates[idx] := EXIT_WORLD
-      return
-    }
-    theState := resetStates[idx]
-    Logg("Instance " . idx . " in state " . theState)
-    fovChange := check_fov(idx)
-    rdChange := check_rd(idx)
-    Logg("Instance " . idx . ": we need to change fov? " . fovChange . ", we need to change rd?" . rdChange)
-    change_settings(fovChange, rdChange, idx)
-  }
-  else if (resetStates[idx] == EXIT_WORLD) ; need to exit world from pause
-  {
-    theState := resetStates[idx]
-    Logg("Instance " . idx . " in state " . theState)
-    ControlSend, ahk_parent, {Blind}{Shift down}{Tab}{Shift up}{Enter}, ahk_pid %pid%
+    ControlSend, ahk_parent, {Blind}{%createWorldKey%}, ahk_pid %pid%
     leftInstance[idx] := A_TickCount
     leftInstanceTime := leftInstance[idx]
     Logg("set instance " . idx . " left instance time to " . leftInstanceTime)
@@ -267,7 +232,7 @@ HandleResetState(pid, idx) {
       }
       return
     }
-    Logg("Instance " . idx . " exited world so switching to state 4")
+    Logg("Instance " . idx . " exited world so switching to LOADING state")
   }
   else if (resetStates[idx] == LOADING) { ; checking if loaded in
     theState := resetStates[idx]
@@ -275,7 +240,7 @@ HandleResetState(pid, idx) {
     WinGetTitle, title, ahk_pid %pid%
     if (IsInGame(title) || HasPreviewStarted(idx))
     {
-      Logg("Instance " . idx . " loaded in so switching to state 5")
+      Logg("Instance " . idx . " loaded in so switching to GET_SPAWN state")
     }
     else
     {
@@ -293,19 +258,18 @@ HandleResetState(pid, idx) {
     theState := resetStates[idx]
     Logg("Instance " . idx . " in state " . theState)
     if (GoodSpawn(idx)) {
-      Logg("Instance " . idx . " has a good spawn so switching to state 7")
+      Logg("Instance " . idx . " has a good spawn so switching to state GOOD_SPAWN")
       ControlSend, ahk_parent, {Blind}{%freezePreviewKey%}, ahk_pid %pid%
       resetStates[idx] := GOOD_SPAWN ; good spawn unfrozen
     }
     else
     {
-      Logg("Instance " . idx . " has a bad spawn so switching to state 2")
+      Logg("Instance " . idx . " has a bad spawn so switching to state LOADING or NEEDS_TO_RESET")
       if (modExist("worldpreview", idx)) {
-        ControlSend, ahk_parent, {Blind}{%leavePreviewKey%}, ahk_pid %pid%
+        ControlSend, ahk_parent, {Blind}{%createWorldKey%}, ahk_pid %pid%
         resetStates[idx] := LOADING
       } else {
-        ControlSend, ahk_parent, {Blind}{Esc}, ahk_pid %pid%
-        resetStates[idx] := EXIT_WORLD ; need to exit world
+        resetStates[idx] := NEEDS_TO_RESET ; need to exit world
       }
     }
     return

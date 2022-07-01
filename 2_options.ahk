@@ -2,10 +2,6 @@
 global forcePerchDisplay := True ; show text to let the chatters know that it's a forced perch
 
 ; Added in v1.11:
-global resetSettings := True
-global FOV := 80 ; 110 for quake pro
-global renderDistance := 5
-global shiftPDelay := 250 ; increase if render distance isn't being reset
 
 ; Added in v1.10:
 global SEED := "8398967436125155523" ; for seed change script
