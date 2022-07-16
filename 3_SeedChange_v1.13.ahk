@@ -4,6 +4,9 @@
 #include functions.ahk
 ;#Warn
 
+MsgBox, this script doesn't work anymore because atum buttons changed
+ExitApp
+
 SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2

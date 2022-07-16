@@ -206,13 +206,8 @@ HandleResetState(pid, idx) {
     return
   else if (resetStates[idx] == NEEDS_TO_RESET) ; needs to reset from play
   {
-    theState := resetStates[idx]
-    Logg("Instance " . idx . " in state " . theState)
-    WinSet, AlwaysOnTop, Off, ahk_pid %pid%
-    ControlSend, ahk_parent, {Blind}{%createWorldKey%}, ahk_pid %pid%
-    leftInstance[idx] := A_TickCount
-    leftInstanceTime := leftInstance[idx]
-    Logg("set instance " . idx . " left instance time to " . leftInstanceTime)
+    reset_instance(idx)
+    return
   }
   else if (resetStates[idx] == TIME_BETWEEN_WORLDS) ; waiting to enter time between worlds
   {
@@ -225,8 +220,8 @@ HandleResetState(pid, idx) {
       Logg("time since left instance " . idx . " is " . timeSinceLeftInstance)
       if (timeSinceLeftInstance > 150) ; instance is likely stuck in an unpause state
       {
-        Logg("that time is greater than 150 ms so switching to NEEDS_TO_RESET state")
-        resetStates[idx] := NEEDS_TO_RESET
+        Logg("that time is greater than 150 ms so attempting reset again")
+        reset_instance(idx)
       }
       return
     }
@@ -262,13 +257,8 @@ HandleResetState(pid, idx) {
     }
     else
     {
-      Logg("Instance " . idx . " has a bad spawn so switching to state LOADING or NEEDS_TO_RESET")
-      if (modExist("worldpreview", idx)) {
-        ControlSend, ahk_parent, {Blind}{%createWorldKey%}, ahk_pid %pid%
-        resetStates[idx] := LOADING
-      } else {
-        resetStates[idx] := NEEDS_TO_RESET ; need to exit world
-      }
+      Logg("Instance " . idx . " has a bad spawn so resetting instance")
+      reset_instance(idx)
     }
     return
   }
@@ -506,10 +496,7 @@ Reset(state := 0)
     sleep, %fullScreenDelay%
   }
   playerState := state ; needs spawn or keep resetting
-  if (resetStates[idx] == RUNNING) ; instance is being played
-  {
-    resetStates[idx] := NEEDS_TO_RESET ; needs to exit from play
-  }
+  reset_instance(idx)
   if (affinity) {
     Logg("Setting high affinity for all instances since all instances are resetting now")
     for i, tmppid in PIDs {

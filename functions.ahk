@@ -272,7 +272,7 @@ readLine(option, idx)
     }
   }
   Logg("could not find option " . option . " in options.txt of " . optionsFile)
-  MsgBox, Could not find option in options.txt
+  MsgBox, Could not find option %option% in %optionsFile%
   ExitApp
 }
 
@@ -295,6 +295,18 @@ getKey(function)
    mcKey := mc_key_to_ahk_key(rawKey)
    Logg("the key is " . rawKey . ", which is " . mcKey)
    return mcKey
+}
+
+reset_instance(n)
+{
+   Logg("resetting instance " . n)
+   pid := PIDs[n]
+   WinSet, AlwaysOnTop, Off, ahk_pid %pid%
+   ControlSend, ahk_parent, {Blind}{%createWorldKey%}, ahk_pid %pid%
+   leftInstance[n] := A_TickCount
+   leftInstanceTime := leftInstance[n]
+   resetStates[n] := TIME_BETWEEN_WORLDS
+   state := resetStates[n]
 }
 
 getVersion()
