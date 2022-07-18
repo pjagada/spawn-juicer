@@ -21,6 +21,10 @@ global instances := 0
 global rawPIDs := []
 global PIDs := []
 global titles := []
+global difficulties = []
+global bonusChests = []
+global structures = []
+global generatorTypes = []
 
 GetAllPIDs()
 
@@ -36,7 +40,7 @@ show_all_mods()
 for k, saves_directory in SavesDirectories
 {
 	check_atum(k)
-	if (seed_check(k))
+	if (config_check(k))
 	{
 		check_title_screen(k)
 		change_seed(k)
@@ -45,23 +49,11 @@ for k, saves_directory in SavesDirectories
 
 Sleep, 100
 
-for n, saves_directory in SavesDirectories
-{
-	check_atum(n)
-	if (seed_check(n))
-	{
-		check_title_screen(n)
-		change_seed(n)
-	}
-}
-
-Sleep, 100
-
 for m, saves_directory in SavesDirectories
 {
-  if (seed_check(m))
+  if (config_check(m))
   {
-    MsgBox, Seed still seems to be wrong in 1 or more instances so try running script again, doing it a few times can help until you hear "Success." If you run it a bunch and it's still not working, just do it manually.
+    MsgBox, Atum configurations still seem to be wrong in 1 or more instances so try running script again, doing it a few times can help until you hear "Success." If you run it a bunch and it's still not working, just do it manually.
     ExitApp
   }
 }
@@ -69,25 +61,52 @@ speak_async("Success")
 
 check_atum(idx)
 {
-	if (!(modExist("atum", idx)))
+	if (!(modExist("atum-1.1", idx)))
     {
-      MsgBox, Instance %idx% does not have atum installed. Install atum in all your instances, restart them, then start the script again.
+      MsgBox, Instance %idx% does not have atum 1.1+ installed. Install atum 1.1+ in all your instances, restart them, then start the script again.
       ExitApp
     }
 }
 
-seed_check(idx)
+config_check(idx)
 {
 	mcDir := SavesDirectories[idx]
-	seedFile := mcDir . "seed.txt"
-	Logg("seed file is " . seedFile)
-	FileReadLine, readSeed, %seedFile%, 1
-	if (ErrorLevel)
-	{
-		return true
-	}
-	Logg("seed read is " . readSeed)
-	return (readSeed != SEED)
+  configFile := mcDir . "config\atum\atum.properties"
+	Logg("config file is " . configFile)
+  good = true
+  Loop, read, %configFile%
+  {
+    if (InStr(A_LoopReadLine), "difficulty=") {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, "=")
+      value := arr[2]
+      difficulties.Push(value)
+      if (value != difficulty) {
+        good = false
+      }
+    } else if (InStr(A_LoopReadLine), "bonusChest=") {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, "=")
+      value := arr[2]
+      value := str_to_bool(value)
+      bonusChests.Push(value)
+      if (value != bonusChest) {
+        good = false
+      }
+    }
+  }
+
+}
+
+str_to_bool(str) {
+  if (InStr(str, "true")) {
+    return true
+  } else if (InStr(str, "false")) {
+    return false
+  } else {
+    MsgBox, unknown boolean value for %str%, exiting script
+    ExitApp
+  }
 }
 
 change_seed(idx)
