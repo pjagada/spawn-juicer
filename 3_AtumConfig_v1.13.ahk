@@ -23,7 +23,7 @@ global PIDs := []
 global titles := []
 global difficulties = []
 global bonusChests = []
-global structures = []
+global structureses = []
 global generatorTypes = []
 
 GetAllPIDs()
@@ -74,6 +74,10 @@ config_check(idx)
   configFile := mcDir . "config\atum\atum.properties"
 	Logg("config file is " . configFile)
   good = true
+  if (FileExist(configFile) == "") {
+    MsgBox, %configFile% does not exist, exiting script.
+    ExitApp
+  }
   Loop, read, %configFile%
   {
     if (InStr(A_LoopReadLine), "difficulty=") {
@@ -93,9 +97,34 @@ config_check(idx)
       if (value != bonusChest) {
         good = false
       }
+    } else if (InStr(A_LoopReadLine), "structures=") {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, "=")
+      value := arr[2]
+      value := str_to_bool(value)
+      structureses.Push(value)
+      if (value != structures) {
+        good = false
+      }
+    } else if (InStr(A_LoopReadLine), "generatorType=" {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, "=")
+      value := arr[2]
+      generatorTypes.Push(value)
+      if (value != generatorType) {
+        good = false
+      }
+    } else if (InStr(A_LoopReadLine), "seed=" {
+      Logg("found line of " . A_LoopReadLine)
+      arr := StrSplit(A_LoopReadLine, "=")
+      value := arr[2]
+      if (value != SEED) {
+        good = false
+      }
     }
   }
 
+  return good
 }
 
 str_to_bool(str) {
@@ -109,20 +138,66 @@ str_to_bool(str) {
   }
 }
 
-change_seed(idx)
+change_seed(thePID)
 {
-	Logg("changing seed of instance " . idx)
-	thePID := PIDs[idx]
-	ShiftTab(thePID)
-	ShiftEnter(thePID)
+	
 	CtrlA(thePID)
   Sleep, 10
 	ControlSend, ahk_parent, {Backspace}, ahk_pid %thePID%
   Sleep, 10
 	ControlSend, ahk_parent, %SEED%, ahk_pid %thePID%
 	Sleep, 10
-	ControlSend, ahk_parent, {Tab}{Tab}{Enter}, ahk_pid %thePID%
-	ControlSend, ahk_parent, {Shift Up}{Ctrl Up}, ahk_pid %thePID%
+}
+
+change_config(idx) {
+  thePID := PIDs[idx]
+  navigate_to_seed_box(thePID)
+  change_seed(thePID)
+  ControlSend, ahk_parent, {Tab}, ahk_pid %thePID%
+  fix_generatorType(idx)
+  ControlSend, ahk_parent, {Tab}, ahk_pid %thePID%
+  fix_difficulty(idx)
+  ControlSend, ahk_parent, {Tab}, ahk_pid %thePID%
+  fix_structures(idx)
+  ControlSend, ahk_parent, {Tab}, ahk_pid %thePID%
+  fix_bonusChest(idx)
+  ControlSend, ahk_parent, {Tab}{Enter}, ahk_pid %thePID%
+}
+
+fix_generatorType(idx) {
+  curr := generatorTypes[idx]
+  presses := generatorType - curr
+  if (presses < 0) {
+    presses += 7
+  }
+  thePID := PIDs[idx]
+  ControlSend, ahk_parent, {Enter %presses%}, ahk_pid %thePID%
+}
+
+fix_difficulty(idx) {
+  curr := difficulties[idx]
+  presses := difficulty - curr
+  if (presses < 0) {
+    presses += 5
+  }
+  thePID := PIDs[idx]
+  ControlSend, ahk_parent, {Enter %presses%}, ahk_pid %thePID%
+}
+
+fix_structures(idx) {
+  curr := structureses[idx]
+  thePID := PIDs[idx]
+  if (curr != structures) {
+    ControlSend, ahk_parent, {Enter}, ahk_pid %thePID%
+  }
+}
+
+fix_bonusChest(idx) {
+  curr := bonusChests[idx]
+  thePID := PIDs[idx]
+  if (curr != bonusChest) {
+    ControlSend, ahk_parent, {Enter}, ahk_pid %thePID%
+  }
 }
 
 SetTitles() {
