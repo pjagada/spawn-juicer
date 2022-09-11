@@ -431,6 +431,16 @@ Perch()
       SendInput, title @p title "Forced Perch"
       Send, {enter}
    }
+   remove_fireball()
+}
+
+remove_fireball()
+{
+   Sleep, 70
+   Send, {%commandKey%}
+   Sleep, 70
+   SendInput, kill @e[type=area_effect_cloud]
+   Send, {enter}
 }
 
 GiveSword()
