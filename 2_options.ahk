@@ -1,11 +1,3 @@
-; Added in v1.14:
-; the 3_AtumConfig script will make sure that all of these values (plus seed) are as you specify.
-; Look at .minecraft/config/atum/atum.properties for more information.
-global difficulty := 1
-global bonusChest := false
-global structures := true
-global generatorType := 0
-
 ; Added in v1.12:
 global forcePerchDisplay := True ; show text to let the chatters know that it's a forced perch
 
