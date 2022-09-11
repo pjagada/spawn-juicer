@@ -1,12 +1,7 @@
 ; Added in v1.12:
 global forcePerchDisplay := True ; show text to let the chatters know that it's a forced perch
 
-; Added in v1.11:
-
 ; Added in v1.10:
-global SEED := "8398967436125155523" ; for seed change script
-global toggleSprint := True ; for toggle sprint/hitboxes script: will not do anything if hold sprint is used, otherwise it will toggle your sprint
-global hitboxes := True ; for toggle sprint/hitboxes script: will toggle hitboxes
 global TTS_speed := 3 ; how fast you want your tts dude to speak
 
 ; Added in v1.9:
