@@ -200,15 +200,55 @@ inList(xCoord, zCoord, fileName)
    return False
 }
 
-GetSpawn(i)
-{
-  logFile := StrReplace(savesDirectories[i], "saves", "logs\latest.log") . "logs\latest.log"
+HasPreviewStarted(idx) {
+  lastReadLine := lastImportantLine[idx]
+  started := False
+  logFile := SavesDirectories[idx] . "logs\latest.log"
   Loop, Read, %logFile%
   {
-    if (InStr(A_LoopReadLine, "logged in with entity id") || InStr(A_LoopReadLine, "Starting Preview"))
+    if (A_Index > lastReadLine)
     {
-      spawnLine := A_LoopReadLine
+      if (InStr(A_LoopReadLine, "Starting Preview at")) {
+        started := True
+        lastImportantLine[idx] := A_Index
+        break
+      }
     }
+  }
+  return started
+}
+
+HasGameSaved(idx) {
+  lastReadLine := lastImportantLine[idx]
+  started := False
+  logFile := SavesDirectories[idx] . "logs\latest.log"
+  Loop, Read, %logFile%
+  {
+    if (A_Index > lastReadLine)
+    {
+      if (InStr(A_LoopReadLine, "Loaded 0") || (InStr(A_LoopReadLine, "Saving chunks for level 'ServerLevel") && InStr(A_LoopReadLine, "minecraft:the_end"))) {
+        saved := True
+        lastImportantLine[idx] := A_Index
+        break
+      }
+    }
+  }
+return saved
+}
+
+GetSpawn(i)
+{
+  logFile := SavesDirectories[i] . "logs\latest.log"
+  Loop, Read, %logFile%
+  {
+   if (A_Index > lastReadLine)
+   {
+      if (InStr(A_LoopReadLine, "logged in with entity id") || InStr(A_LoopReadLine, "Starting Preview"))
+      {
+         spawnLine := A_LoopReadLine
+         lastImportantLine[i] := A_Index
+      }
+   }
   }
   array1 := StrSplit(spawnLine, " at (")
   xyz := array1[2]
@@ -370,7 +410,7 @@ show_all_mods()
 
 WaitForHost(savesDirectory)
 {
-   logFile := StrReplace(savesDirectory, "saves", "logs\latest.log") . "logs\latest.log"
+   logFile := savesDirectory . "logs\latest.log"
    Logg("waiting for host in " . logFile)
    numLines := 0
    Loop, Read, %logFile%
@@ -863,4 +903,13 @@ GetInstanceNumberFromSaves(saves) {
   else
     FileRead, num, %numFile%
 return num
+}
+
+get_log_length(idx)
+{
+   logFile := SavesDirectories[idx] . "logs\latest.log"
+  lineNum := 0
+  Loop, Read, %logFile%
+    lineNum := A_Index
+  return lineNum
 }

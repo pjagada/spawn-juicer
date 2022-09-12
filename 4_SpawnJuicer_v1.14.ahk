@@ -38,6 +38,7 @@ global beforeFreezeDelay := 0 ; increase if doesnt join world
 global playerState := 0 ; needs spawn
 global highBitMask := (2 ** threadCount) - 1
 global lowBitMask := (2 ** Ceil(threadCount * lowBitmaskMultiplier)) - 1
+global lastImportantLine := []
 
 global RUNNING := 0
 global NEEDS_TO_RESET := RUNNING + 1
@@ -72,6 +73,7 @@ for eye, tmp_pid in PIDs{
   reachedSave.Push(false)
   WinSet, AlwaysOnTop, Off, ahk_pid %tmp_pid%
   leftInstance.Push(0)
+  lastImportantLine.Push(get_log_length(eye))
 }
 global version = getVersion()
 
@@ -302,49 +304,6 @@ HandleResetState(pid, idx) {
     ExitApp
   }
   resetStates[idx] += 1 ; Progress State
-}
-
-HasPreviewStarted(idx) {
-  logFile := SavesDirectories[idx] . "logs\latest.log"
-  numLines := 0
-  Loop, Read, %logFile%
-  {
-    numLines += 1
-  }
-  started := False
-  Loop, Read, %logFile%
-  {
-    if ((numLines - A_Index) < 5)
-    {
-      if (InStr(A_LoopReadLine, "Starting Preview at")) {
-        started := True
-        break
-      }
-    }
-  }
-  return started
-}
-
-HasGameSaved(idx) {
-  logFile := SavesDirectories[idx] . "logs\latest.log"
-  numLines := 0
-  Loop, Read, %logFile%
-  {
-    numLines += 1
-  }
-  saved := False
-  startTime := A_TickCount
-  Loop, Read, %logFile%
-  {
-    if ((numLines - A_Index) < 5)
-    {
-      if (InStr(A_LoopReadLine, "Loaded 0") || (InStr(A_LoopReadLine, "Saving chunks for level 'ServerLevel") && InStr(A_LoopReadLine, "minecraft:the_end"))) {
-        saved := True
-        break
-      }
-    }
-  }
-return saved
 }
 
 SetAffinity(pid, mask) {
