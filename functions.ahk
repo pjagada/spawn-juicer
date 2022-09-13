@@ -501,6 +501,7 @@ GiveSword()
 Coop(idx)
 {
   Logg("doing co-op stuff for instance " . idx)
+  wait_for_previous_instance_to_reset(idx)
   PausedOpenToLAN(idx)
   thePID := PIDs[idx]
   ControlSend, ahk_parent, {%commandKey%}, ahk_pid %thePID%
@@ -510,6 +511,32 @@ Coop(idx)
   } else {
     ControlSend, ahk_parent, time set 0, ahk_pid %thePID%
   }
+}
+
+wait_for_previous_instance_to_reset(idx)
+{
+   startTime := A_TickCount
+   thereIsAnInstanceInRunningState := true
+   while (thereIsAnInstanceInRunningState) {
+      thereIsAnInstanceInRunningState := false
+      Loop, %instances% {
+         if (A_Index != idx) {
+            thatState := resetStates[A_Index]
+            Logg("instance " . A_Index . " has state " . thatState)
+            if (thatState == RUNNING) {
+               Logg("there is a running instance")
+               thereIsAnInstanceInRunningState := true
+            }
+         } else {
+            Logg("not checking current instance of " . idx . " for running state")
+         }
+      }
+      Sleep, 50
+      if (A_TickCount - startTime > 1000) {
+         break
+      }
+   }
+   Logg("no other instances in running state")
 }
 
 GetActiveInstanceNum() {
