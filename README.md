@@ -39,7 +39,9 @@ Char - WorldPreview support
 
 Specnr - original creator of this macro, author of worldBopper9000 and instance setup script
 
-jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting
+jojoe77777 - miscellaneous help, initial creator of automatic spawn resetting and multi-instance macros
+
+Ravalle and Mach - miscellaneous help
 
 EvanKae - affinity help
 
