@@ -511,6 +511,7 @@ Coop(idx)
   } else {
     ControlSend, ahk_parent, time set 0, ahk_pid %thePID%
   }
+  Send, {LButton}
 }
 
 wait_for_previous_instance_to_reset(idx)
