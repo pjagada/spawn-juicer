@@ -7,3 +7,4 @@ spawn_juicer_old.ahk
 options_reading_testing.ahk
 test.ahk
 *.log
+*seed_options.ahk
