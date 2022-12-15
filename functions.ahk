@@ -880,6 +880,7 @@ startup_log()
    Logg("  lowBitmaskMultiplier: " . lowBitmaskMultiplier)
    Logg("  obsDelay: " . obsDelay)
    Logg("  wallSwitch: " . wallSwitch)
+   Logg("  positionMouse: " . positionMouse)
 }
 
 GetAllPIDs()
@@ -940,4 +941,16 @@ get_log_length(idx)
   Loop, Read, %logFile%
     lineNum := A_Index
   return lineNum
+}
+
+position_mouse(thePID)
+{
+   if (!positionMouse) {
+      return
+   }
+   WinActivate, ahk_exe Discord.exe ; switch this out with something that finds all open windows and finds the one that covers that coordinate instead of hardcode of Discord
+   MouseMove, %mousePosX%, %mousePosY%, 0
+   Logg("moved mouse to " . mousePosX . ", " . mousePosY)
+   WinActivate, ahk_pid %thePID%
+   return
 }

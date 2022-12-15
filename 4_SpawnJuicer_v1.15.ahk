@@ -12,8 +12,13 @@
 SetKeyDelay, 0
 SetWinDelay, 1
 SetTitleMatchMode, 2
+CoordMode, Mouse, Screen
 
 #Include 2_options.ahk
+
+if (positionMouse) {
+  unpauseOnSwitch := True
+}
 
 startup_log()
 
@@ -410,9 +415,11 @@ SwitchInstance(idx)
   }
   else if (unpauseOnSwitch)
   {
+    Logg("unpausing instance " . idx)
+    Send, {RButton} ; Make sure the window is activated
     ControlSend, ahk_parent, {Esc}, ahk_pid %thePID%
-    Send, {LButton} ; Make sure the window is activated
   }
+  position_mouse(thePID)
 }
 
 ShowF3()

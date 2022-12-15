@@ -1,3 +1,9 @@
+; Added in v1.15:
+global positionMouse := True ; forces the mouse to be at preset coordinates for the first chest (forces unpauseOnSwitch to be True)
+; get the coordinates using Window Spy (right click on autohotkey icon in system tray). Use Screen coordinates
+global mousePosX := 670 ; x coordinate of the mouse
+global mousePosY := 298 ; y coordinate of the mouse
+
 ; Added in v1.12:
 global forcePerchDisplay := True ; show text to let the chatters know that it's a forced perch
 
